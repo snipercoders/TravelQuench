@@ -1,13 +1,14 @@
 
-// ============================================================================
-// 2. UPDATE: src/pages/packages/indian.tsx (rename to domestic.tsx)
-// ============================================================================
+
+// Updated PackageCard component in src/pages/packages/indian.tsx
+
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import BookButton from '@/components/common/BookButton';
+import Footer from '@/components/layout/Footer';
 import { 
   Search, 
   Filter, 
@@ -22,12 +23,11 @@ import {
   List,
   Heart,
   Mountain,
-  Globe
 } from 'lucide-react';
 import { Button, Card, Badge, Input, Select } from '@/components/ui';
-import WhatsAppButton from '@/components/common/WhatsAppButton';
+import { useWishlist } from '@/hooks/useWishlist';
+import { useAuth } from '@/hooks/useAuth';
 
-// Same Package interface as above...
 interface Package {
   _id: string;
   title: string;
@@ -44,6 +44,169 @@ interface Package {
   description?: string;
   isFeatured: boolean;
 }
+
+const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: boolean }) => {
+  const { isAuthenticated } = useAuth();
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const [isToggling, setIsToggling] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
+  const isWishlisted = wishlist.some((item) => item.packageId === pkg._id);
+
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      setShowLoginPrompt(true);
+      setTimeout(() => setShowLoginPrompt(false), 3000);
+      return;
+    }
+
+    setIsToggling(true);
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist(pkg._id);
+      } else {
+        await addToWishlist(pkg._id);
+      }
+    } catch (error: any) {
+      console.error('Error toggling wishlist:', error);
+      alert(error.message || 'Failed to update wishlist');
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
+  return (
+    <Card padding="none" className={`overflow-hidden hover:shadow-lg transition-all duration-300 group relative ${isListView ? 'flex flex-col sm:flex-row' : 'flex flex-col'}`}>
+      {showLoginPrompt && (
+        <div className="absolute top-2 left-2 right-2 mx-2 bg-blue-500 text-white text-xs sm:text-sm px-3 py-2 rounded-lg z-20 shadow-lg">
+          Please login to add to wishlist
+        </div>
+      )}
+      
+      <div className={`relative ${isListView ? 'w-full sm:w-1/3' : 'w-full'} aspect-[3/2]`}>
+        <Image
+          src={pkg.thumbnail || '/images/placeholder-package.jpg'}
+          alt={pkg.title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+          <Badge className="bg-green-700 text-white font-semibold px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm shadow-md">
+            <Home className="h-3 sm:h-4 w-3 sm:w-4 mr-1 sm:mr-1.5" />
+            Domestic
+          </Badge>
+        </div>
+        {pkg.isFeatured && (
+          <div className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10">
+            <Badge variant="warning" className="font-semibold px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm shadow-md">
+              Featured
+            </Badge>
+          </div>
+        )}
+        <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 z-10">
+          <button
+            onClick={handleWishlistToggle}
+            disabled={isToggling}
+            className={`rounded-full p-2 sm:p-2.5 transition-all duration-200 shadow-md transform hover:scale-110 ${
+              isWishlisted
+                ? 'bg-red-500 text-white hover:bg-red-600'
+                : 'bg-white/30 backdrop-blur-sm text-white hover:bg-white/50'
+            } ${isToggling ? 'opacity-50 cursor-not-allowed animate-pulse' : ''}`}
+            title={isAuthenticated ? (isWishlisted ? 'Remove from wishlist' : 'Add to wishlist') : 'Login to add to wishlist'}
+          >
+            <Heart
+              className={`w-4 sm:w-5 h-4 sm:h-5 transition-all duration-200 ${
+                isWishlisted ? 'fill-current' : ''
+              } ${isToggling ? 'animate-pulse' : ''}`}
+            />
+          </button>
+        </div>
+      </div>
+      
+      <div className={`p-3 sm:p-4 ${isListView ? 'flex-1 flex flex-col justify-between' : ''}`}>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center text-primary-600 text-xs sm:text-sm">
+              <MapPin className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
+              {pkg.destination}
+            </div>
+            {pkg.rating && (
+              <div className="flex items-center text-yellow-500">
+                <Star className="w-3 sm:w-4 h-3 sm:h-4 mr-1 fill-current" />
+                <span className="text-xs sm:text-sm font-medium text-gray-900">{pkg.rating}</span>
+              </div>
+            )}
+          </div>
+          
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+            {pkg.title}
+          </h3>
+          
+          {isListView && (
+            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
+              {pkg.description}
+            </p>
+          )}
+          
+          <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
+            <div className="flex items-center">
+              <Calendar className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
+              {pkg.duration} days
+            </div>
+            <div className="flex items-center">
+              <Users className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
+              Max {pkg.maxGroupSize || 10}
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div>
+              <div className="flex items-center">
+                <IndianRupee className="h-3 sm:h-4 w-3 sm:w-4 text-gray-900" />
+                <span className="text-base sm:text-xl font-bold text-gray-900">
+                  {pkg.price.toLocaleString()}
+                </span>
+              </div>
+              {pkg.originalPrice && pkg.originalPrice > pkg.price && (
+                <div className="flex items-center text-xs sm:text-sm text-gray-500 line-through">
+                  <IndianRupee className="h-2.5 sm:h-3 w-2.5 sm:w-3" />
+                  <span>{pkg.originalPrice.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="text-xs text-gray-600">per person</div>
+            </div>
+            {pkg.originalPrice && pkg.originalPrice > pkg.price && (
+              <Badge variant="success" size="sm" className="text-xs sm:text-sm">
+                {Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100)}% OFF
+              </Badge>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <Link href={`/packages/${pkg._id}`}>
+              <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+                View Details
+              </Button>
+            </Link>
+            <BookButton
+              packageId={pkg._id}
+              packageTitle={pkg.title}
+              className="w-full bg-green-500 hover:bg-green-600 text-white text-xs sm:text-sm"
+              size="sm"
+            >
+              Book Now
+            </BookButton>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 const DomesticPackagesPage: React.FC = () => {
   const [packages, setPackages] = useState<Package[]>([]);
@@ -95,227 +258,6 @@ const DomesticPackagesPage: React.FC = () => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  // Same PackageCard component but with "Domestic" badge...
-  // const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: boolean }) => (
-  //   <Card padding="none" className={`overflow-hidden hover:shadow-lg transition-all duration-300 group ${isListView ? 'flex' : ''}`}>
-  //     <div className={`relative ${isListView ? 'w-1/3' : 'w-full'}`}>
-  //       <Image
-  //         src={pkg.thumbnail || '/images/placeholder-package.jpg'}
-  //         alt={pkg.title}
-  //         width={isListView ? 200 : 300}
-  //         height={200}
-  //         className={`${isListView ? 'h-full' : 'h-48'} w-full object-cover group-hover:scale-105 transition-transform duration-300`}
-  //       />
-  //       <div className="absolute top-4 left-4">
-  //         <Badge className="bg-green-600 text-white">
-  //           <Home className="h-3 w-3 mr-1" />
-  //           Domestic
-  //         </Badge>
-  //       </div>
-  //       {pkg.isFeatured && (
-  //         <div className="absolute top-4 right-4">
-  //           <Badge variant="warning">Featured</Badge>
-  //         </div>
-  //       )}
-  //       <div className="absolute bottom-4 right-4">
-  //         <button className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:text-red-500 transition-colors">
-  //           <Heart className="w-4 h-4" />
-  //         </button>
-  //       </div>
-  //     </div>
-      
-  //     <div className={`p-4 ${isListView ? 'flex-1 flex flex-col justify-between' : ''}`}>
-  //       <div>
-  //         <div className="flex items-center justify-between mb-2">
-  //           <div className="flex items-center text-primary-600 text-sm">
-  //             <MapPin className="w-4 h-4 mr-1" />
-  //             {pkg.destination}
-  //           </div>
-  //           {pkg.rating && (
-  //             <div className="flex items-center text-yellow-500">
-  //               <Star className="w-4 h-4 mr-1 fill-current" />
-  //               <span className="text-sm font-medium text-gray-900">{pkg.rating}</span>
-  //             </div>
-  //           )}
-  //         </div>
-          
-  //         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-  //           {pkg.title}
-  //         </h3>
-          
-  //         {isListView && (
-  //           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-  //             {pkg.description}
-  //           </p>
-  //         )}
-          
-  //         <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-  //           <div className="flex items-center">
-  //             <Calendar className="w-4 h-4 mr-1" />
-  //             {pkg.duration} days
-  //           </div>
-  //           <div className="flex items-center">
-  //             <Users className="w-4 h-4 mr-1" />
-  //             Max {pkg.maxGroupSize || 10}
-  //           </div>
-  //         </div>
-  //       </div>
-        
-  //       <div>
-  //         <div className="flex items-center justify-between mb-4">
-  //           <div>
-  //             <div className="flex items-center">
-  //               <IndianRupee className="h-4 w-4 text-gray-900" />
-  //               <span className="text-xl font-bold text-gray-900">
-  //                 {pkg.price.toLocaleString()}
-  //               </span>
-  //             </div>
-  //             {pkg.originalPrice && pkg.originalPrice > pkg.price && (
-  //               <div className="flex items-center text-sm text-gray-500 line-through">
-  //                 <IndianRupee className="h-3 w-3" />
-  //                 <span>{pkg.originalPrice.toLocaleString()}</span>
-  //               </div>
-  //             )}
-  //             <div className="text-xs text-gray-600">per person</div>
-  //           </div>
-  //           {pkg.originalPrice && pkg.originalPrice > pkg.price && (
-  //             <Badge variant="success" size="sm">
-  //               {Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100)}% OFF
-  //             </Badge>
-  //           )}
-  //         </div>
-          
-  //         <div className="space-y-2">
-  //           <Link href={`/packages/${pkg._id}`}>
-  //             <Button variant="outline" size="sm" className="w-full">
-  //               View Details
-  //             </Button>
-  //           </Link>
-  //           <WhatsAppButton
-  //             message={`Hi! I'm interested in the ${pkg.title} domestic package. Can you provide more details?`}
-  //             className="w-full bg-green-500 hover:bg-green-600 text-white"
-  //           >
-  //             Book Now
-  //           </WhatsAppButton>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </Card>
-  // );
-
-
-// Updated PackageCard for src/pages/packages/international.tsx
-const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: boolean }) => (
-  <Card padding="none" className={`overflow-hidden hover:shadow-lg transition-all duration-300 group ${isListView ? 'flex' : ''}`}>
-    <div className={`relative ${isListView ? 'w-1/3' : 'w-full'}`}>
-      <Image
-        src={pkg.thumbnail || '/images/placeholder-package.jpg'}
-        alt={pkg.title}
-        width={isListView ? 200 : 300}
-        height={200}
-        className={`${isListView ? 'h-full' : 'h-48'} w-full object-cover group-hover:scale-105 transition-transform duration-300`}
-      />
-      <div className="absolute top-4 left-4">
-        <Badge className="bg-blue-600 text-white">
-          <Globe className="h-3 w-3 mr-1" />
-          International
-        </Badge>
-      </div>
-      {pkg.isFeatured && (
-        <div className="absolute top-4 right-4">
-          <Badge variant="warning">Featured</Badge>
-        </div>
-      )}
-      <div className="absolute bottom-4 right-4">
-        <button className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:text-red-500 transition-colors">
-          <Heart className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-    
-    <div className={`p-4 ${isListView ? 'flex-1 flex flex-col justify-between' : ''}`}>
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center text-primary-600 text-sm">
-            <MapPin className="w-4 h-4 mr-1" />
-            {pkg.destination}
-          </div>
-          {pkg.rating && (
-            <div className="flex items-center text-yellow-500">
-              <Star className="w-4 h-4 mr-1 fill-current" />
-              <span className="text-sm font-medium text-gray-900">{pkg.rating}</span>
-            </div>
-          )}
-        </div>
-        
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-          {pkg.title}
-        </h3>
-        
-        {isListView && (
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {pkg.description}
-          </p>
-        )}
-        
-        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
-            {pkg.duration} days
-          </div>
-          <div className="flex items-center">
-            <Users className="w-4 h-4 mr-1" />
-            Max {pkg.maxGroupSize || 10}
-          </div>
-        </div>
-      </div>
-      
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="flex items-center">
-              <IndianRupee className="h-4 w-4 text-gray-900" />
-              <span className="text-xl font-bold text-gray-900">
-                {pkg.price.toLocaleString()}
-              </span>
-            </div>
-            {pkg.originalPrice && pkg.originalPrice > pkg.price && (
-              <div className="flex items-center text-sm text-gray-500 line-through">
-                <IndianRupee className="h-3 w-3" />
-                <span>{pkg.originalPrice.toLocaleString()}</span>
-              </div>
-            )}
-            <div className="text-xs text-gray-600">per person</div>
-          </div>
-          {pkg.originalPrice && pkg.originalPrice > pkg.price && (
-            <Badge variant="success" size="sm">
-              {Math.round(((pkg.originalPrice - pkg.price) / pkg.originalPrice) * 100)}% OFF
-            </Badge>
-          )}
-        </div>
-        
-        <div className="space-y-2">
-          <Link href={`/packages/${pkg._id}`}>
-            <Button variant="outline" size="sm" className="w-full">
-              View Details
-            </Button>
-          </Link>
-          <BookButton
-            packageId={pkg._id}
-            packageTitle={pkg.title}
-            className="w-full bg-green-500 hover:bg-green-600 text-white"
-            size="sm"
-          >
-            Book Now
-          </BookButton>
-        </div>
-      </div>
-    </div>
-  </Card>
-);
-
-
-
   return (
     <Layout title="Domestic Travel Packages" description="Explore incredible destinations within India">
       <Head>
@@ -324,19 +266,18 @@ const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: b
       </Head>
 
       <div className="bg-gray-50 min-h-screen">
-        {/* Hero Section */}
         <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
             <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
-                  <Mountain className="h-12 w-12 text-white" />
+              <div className="flex justify-center mb-3 sm:mb-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 sm:p-4">
+                  <Mountain className="h-10 sm:h-12 w-10 sm:w-12 text-white" />
                 </div>
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">
                 Domestic Travel Packages
               </h1>
-              <p className="text-xl text-green-100 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-green-100 max-w-xl sm:max-w-2xl mx-auto">
                 Discover the incredible diversity of India. From majestic Himalayas to serene backwaters,
                 explore the beauty of your homeland with our domestic packages.
               </p>
@@ -344,19 +285,110 @@ const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: b
           </div>
         </div>
 
-        {/* Rest of the component follows same structure as International page */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Same filters and content structure as international page... */}
-          {/* Package Grid/List */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center text-xs sm:text-sm w-full sm:w-auto"
+              >
+                <SlidersHorizontal className="h-3 sm:h-4 w-3 sm:w-4 mr-2" />
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  onClick={() => setViewMode('grid')}
+                  className="p-2 sm:p-2.5"
+                >
+                  <Grid3X3 className="h-3 sm:h-4 w-3 sm:w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  onClick={() => setViewMode('list')}
+                  className="p-2 sm:p-2.5"
+                >
+                  <List className="h-3 sm:h-4 w-3 sm:w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="w-full sm:w-64">
+              <Input
+                placeholder="Search by destination..."
+                value={filters.destination}
+                onChange={(e) => handleFilterChange('destination', e.target.value)}
+                icon={<Search className="h-3 sm:h-4 w-3 sm:w-4 text-gray-400" />}
+                className="text-xs sm:text-sm"
+              />
+            </div>
+          </div>
+
+          {showFilters && (
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white rounded-lg shadow-md">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <Select
+                  value={filters.category}
+                  onChange={(value) => handleFilterChange('category', value)}
+                  options={[{ value: 'all', label: 'All Categories' }, ...categories.map(cat => ({ value: cat, label: cat }))]}
+                  placeholder="Select Category"
+                  className="text-xs sm:text-sm"
+                />
+                <Input
+                  type="number"
+                  placeholder="Min Price"
+                  value={filters.minPrice}
+                  onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                  className="text-xs sm:text-sm"
+                />
+                <Input
+                  type="number"
+                  placeholder="Max Price"
+                  value={filters.maxPrice}
+                  onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                  className="text-xs sm:text-sm"
+                />
+                <Select
+                  value={filters.sort}
+                  onChange={(value) => handleFilterChange('sort', value)}
+                  options={[
+                    { value: 'createdAt', label: 'Newest First' },
+                    { value: 'priceAsc', label: 'Price: Low to High' },
+                    { value: 'priceDesc', label: 'Price: High to Low' },
+                    { value: 'rating', label: 'Top Rated' }
+                  ]}
+                  placeholder="Sort By"
+                  className="text-xs sm:text-sm"
+                />
+              </div>
+            </div>
+          )}
+
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-              <span className="ml-3 text-gray-600">Loading domestic packages...</span>
+            <div className="flex items-center justify-center py-8 sm:py-12">
+              <div className="animate-spin rounded-full h-8 sm:h-12 w-8 sm:w-12 border-b-2 border-primary-500"></div>
+              <span className="ml-2 sm:ml-3 text-gray-600 text-sm sm:text-base">Loading domestic packages...</span>
+            </div>
+          ) : packages.length === 0 ? (
+            <div className="text-center py-8 sm:py-16">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-12 max-w-md mx-auto">
+                <Mountain className="h-12 sm:h-16 w-12 sm:w-16 text-gray-400 mx-auto mb-3 sm:mb-4" />
+                <h3 className="text-base sm:text-xl font-semibold text-gray-900 mb-2">No Packages Found</h3>
+                <p className="text-gray-600 text-xs sm:text-sm mb-4 sm:mb-6">
+                  Try adjusting your filters or search for different destinations.
+                </p>
+                <Button 
+                  onClick={() => setFilters({ category: 'all', destination: '', minPrice: '', maxPrice: '', sort: 'createdAt' })}
+                  className="text-xs sm:text-sm"
+                >
+                  Clear Filters
+                </Button>
+              </div>
             </div>
           ) : (
             <div className={viewMode === 'grid' 
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-              : 'space-y-6'
+              ? 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
+              : 'space-y-4 sm:space-y-6'
             }>
               {packages.map((pkg) => (
                 <PackageCard key={pkg._id} pkg={pkg} isListView={viewMode === 'list'} />
@@ -365,8 +397,11 @@ const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: b
           )}
         </div>
       </div>
+      <Footer />
     </Layout>
   );
 };
 
 export default DomesticPackagesPage;
+
+

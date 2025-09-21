@@ -1,3 +1,65 @@
+// // lib/db/connection.ts
+// import mongoose from 'mongoose';
+
+// const MONGODB_URI = process.env.MONGODB_URI!;
+
+// if (!MONGODB_URI) {
+//   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+// }
+
+// interface GlobalMongoose {
+//   conn: typeof mongoose | null;
+//   promise: Promise<typeof mongoose> | null;
+// }
+
+// declare global {
+//   var mongoose: GlobalMongoose;
+// }
+
+// let cached = global.mongoose;
+
+// if (!cached) {
+//   cached = global.mongoose = { conn: null, promise: null };
+// }
+
+// async function connectDB() {
+//   if (cached.conn) {
+//     return cached.conn;
+//   }
+
+//   if (!cached.promise) {
+//     const opts = {
+//       bufferCommands: false,
+//     };
+
+//     cached.promise = mongoose.connect(MONGODB_URI, opts);
+//   }
+
+//   try {
+//     cached.conn = await cached.promise;
+//   } catch (e) {
+//     cached.promise = null;
+//     throw e;
+//   }
+
+//   return cached.conn;
+// }
+
+// export default connectDB;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // lib/db/connection.ts
 import mongoose from 'mongoose';
 
@@ -45,4 +107,6 @@ async function connectDB() {
   return cached.conn;
 }
 
+// Export both default and named exports to support different import styles
 export default connectDB;
+export { connectDB };
