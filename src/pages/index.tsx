@@ -203,37 +203,37 @@ const HomePage: React.FC = () => {
     {
       id: '1',
       name: 'Europe',
-      image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758563994/photo-1499856871958-5b9627545d1a_yvabjz.avif',
       description: 'City of lights and romance'
     },
     {
       id: '2',
       name: 'Bali',
-      image: 'https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758563931/photo-1516483638261-f4dbaf036963_xpqpz3.avif',
       description: 'Tropical paradise awaits'
     },
     {
       id: '3',
       name: 'Thailand',
-      image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758563931/photo-1536098561742-ca998e48cbcc_di9377.avif',
       description: 'Land of smiles and beaches'
     },
     {
       id: '4',
       name: 'Spain',
-      image: 'https://images.unsplash.com/photo-1539650116574-75c0c6d27d3d?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758564014/1q_q6oxvw.webp',
       description: 'Vibrant culture and architecture'
     },
     {
       id: '5',
       name: 'Singapore',
-      image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758563931/premium_photo-1661962958462-9e52fda9954d_yomf7x.avif',
       description: 'Modern city-state marvel'
     },
     {
       id: '6',
       name: 'Japan',
-      image: 'https://images.unsplash.com/photo-1490761668535-35497054764d?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758563931/photo-1522547902298-51566e4fb383_shsxox.avif',
       description: 'Ancient meets modern'
     }
   ];
@@ -243,37 +243,37 @@ const HomePage: React.FC = () => {
     {
       id: '1',
       name: 'Kerala',
-      image: 'https://images.unsplash.com/photo-1587588354456-a1dd0f4e8a94?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758564603/premium_photo-1697729438401-fcb4ff66d9a8_ibfona.avif',
       description: 'Backwaters and serene beauty'
     },
     {
       id: '2',
       name: 'Goa',
-      image: 'https://images.unsplash.com/photo-1519046906114-53103b34b206?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758564603/premium_photo-1697729701846-e34563b06d47_txjyr5.avif',
       description: 'Beaches and party vibes'
     },
     {
       id: '3',
       name: 'Rajasthan',
-      image: 'https://images.unsplash.com/photo-1562757550-1b1f1a5f1d1f?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758564603/photo-1602643163983-ed0babc39797_rddtbr.avif',
       description: 'Royal heritage and forts'
     },
     {
       id: '4',
       name: 'Kashmir',
-      image: 'https://images.unsplash.com/photo-1571068315587-5a1f3a09ab0b?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758564641/photo-1581791534721-e599df4417f7_emcoen.avif',
       description: 'Paradise on earth'
     },
     {
       id: '5',
       name: 'Himachal',
-      image: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758566238/rishabh-pandoh-m1PFxGQ-5x0-unsplash_yxjv4u.jpg',
       description: 'Mountain retreats and adventure'
     },
     {
       id: '6',
       name: 'Andaman',
-      image: 'https://images.unsplash.com/photo-1545565341-7f0594e4d2b0e?w=400&h=300&fit=crop',
+      image: 'https://res.cloudinary.com/dzoxwk1jc/image/upload/v1758566099/deepak-kumar-Zwa0f934c2M-unsplash_hax7jy.jpg',
       description: 'Crystal clear waters and islands'
     }
   ];
@@ -613,7 +613,7 @@ const HomePage: React.FC = () => {
           {!loading && featuredPackages.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-600 mb-4 text-sm sm:text-base">No featured packages available at the moment.</p>
-              <Link href="/packages">
+              <Link href="/packages/international">
                 <Button size={isMobile ? "default" : "lg"}>
                   Browse All Packages
                 </Button>

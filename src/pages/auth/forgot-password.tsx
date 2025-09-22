@@ -2,12 +2,11 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useGuestOnly, useAuth } from '@/hooks/useAuth';
+import { useGuestOnly } from '@/hooks/useAuth';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const ForgotPasswordPage: React.FC = () => {
   const { isLoading } = useGuestOnly('/');
-  const { forgotPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -29,12 +28,22 @@ const ForgotPasswordPage: React.FC = () => {
     setIsSubmitting(true);
     setError('');
 
-    const result = await forgotPassword(email);
-    
-    if (result.success) {
-      setIsEmailSent(true);
-    } else {
-      setError(result.message);
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsEmailSent(true);
+      } else {
+        setError(data.message || 'Failed to send reset email');
+      }
+    } catch (error) {
+      setError('Network error. Please try again.');
     }
     
     setIsSubmitting(false);
