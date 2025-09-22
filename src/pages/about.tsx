@@ -218,13 +218,7 @@ const About: React.FC = () => {
             <p className="mt-4 text-lg text-gray-600">
               Every trip we design is a step toward bringing people closer to the world and each other. Join us, and let's write your next travel story together.
             </p>
-            <Link
-              href="/destinations"
-              className="mt-6 inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors duration-200"
-            >
-              Explore Destinations
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+           
           </div>
           <div className="relative h-64 sm:h-80 lg:h-96">
             <Image

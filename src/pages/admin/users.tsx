@@ -1,4 +1,6 @@
-// // // src/pages/admin/users.tsx
+
+
+// // src/pages/admin/users.tsx
 
 // import React, { useState, useEffect } from 'react';
 // import AdminLayout from '@/components/layout/AdminLayout';
@@ -346,16 +348,16 @@
 //           {/* Action Bar */}
 //           <div className="mb-8">
 //             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-//               <div className="flex flex-wrap items-center gap-4">
+//               <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
 //                 {/* Search */}
-//                 <div className="relative">
+//                 <div className="relative w-full sm:w-64">
 //                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
 //                   <input
 //                     type="text"
 //                     placeholder="Search users..."
 //                     value={searchTerm}
 //                     onChange={(e) => setSearchTerm(e.target.value)}
-//                     className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent w-64"
+//                     className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full"
 //                   />
 //                 </div>
 
@@ -363,7 +365,7 @@
 //                 <select
 //                   value={selectedRole}
 //                   onChange={(e) => setSelectedRole(e.target.value)}
-//                   className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+//                   className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 w-full sm:w-auto"
 //                 >
 //                   <option value="all">All Roles</option>
 //                   <option value="customer" className="bg-gray-800">Customer</option>
@@ -374,7 +376,7 @@
 //                 <select
 //                   value={selectedStatus}
 //                   onChange={(e) => setSelectedStatus(e.target.value)}
-//                   className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+//                   className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 w-full sm:w-auto"
 //                 >
 //                   <option value="all">All Status</option>
 //                   <option value="active" className="bg-gray-800">Active</option>
@@ -392,7 +394,7 @@
 //                 </button>
 //               </div>
 
-//               <div className="flex flex-wrap gap-2">
+//               <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-start lg:justify-end">
 //                 {/* Export Button */}
 //                 <button
 //                   onClick={exportUsers}
@@ -443,7 +445,7 @@
 //                 </div>
 //               </div>
 //             </div>
-//             <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-6">
+//             {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-6">
 //               <div className="flex items-center">
 //                 <Shield className="h-8 w-8 text-yellow-400" />
 //                 <div className="ml-4">
@@ -451,14 +453,14 @@
 //                   <p className="text-2xl font-bold text-white">{users.filter(u => u.isEmailVerified).length}</p>
 //                 </div>
 //               </div>
-//             </div>
+//             </div> */}
 //           </div>
 
 //           {/* Users Table */}
 //           <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 overflow-hidden">
-//             <div className="overflow-x-auto">
-//               <table className="min-w-full divide-y divide-white/20">
-//                 <thead className="bg-white/5">
+//             <div className="overflow-x-auto md:overflow-x-auto">
+//               <table className="min-w-full md:table block">
+//                 <thead className="bg-white/5 hidden md:table-header-group">
 //                   <tr>
 //                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">User</th>
 //                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Contact</th>
@@ -468,10 +470,10 @@
 //                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
 //                   </tr>
 //                 </thead>
-//                 <tbody className="bg-white/5 divide-y divide-white/10">
+//                 <tbody className="md:divide-y md:divide-white/10">
 //                   {filteredUsers.map((user) => (
-//                     <tr key={user.id} className="hover:bg-white/10 transition-colors">
-//                       <td className="px-6 py-4 whitespace-nowrap">
+//                     <tr key={user.id} className="bg-white/5 block md:table-row rounded-lg md:rounded-none mb-4 md:mb-0 hover:bg-white/10 transition-colors">
+//                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider" data-label="User">
 //                         <div className="flex items-center">
 //                           <div className="h-10 w-10 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center text-white font-semibold">
 //                             {user.profileImage ? (
@@ -494,7 +496,7 @@
 //                           </div>
 //                         </div>
 //                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap">
+//                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider" data-label="Contact">
 //                         <div className="text-sm">
 //                           <div className="flex items-center text-white mb-1">
 //                             <Mail className="h-4 w-4 mr-2 text-gray-400" />
@@ -508,7 +510,7 @@
 //                           )}
 //                         </div>
 //                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap">
+//                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider" data-label="Role & Status">
 //                         <div className="flex flex-col space-y-2">
 //                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(user.role)}`}>
 //                             <Shield className="h-3 w-3 mr-1" />
@@ -520,13 +522,13 @@
 //                           </span>
 //                         </div>
 //                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+//                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider text-sm text-gray-300" data-label="Activity">
 //                         <div>
 //                           <div className="text-white font-medium">{user.totalBookings} bookings</div>
 //                           <div className="text-green-400">₹{user.totalSpent.toLocaleString()} spent</div>
 //                         </div>
 //                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+//                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider text-sm text-gray-300" data-label="Joined">
 //                         <div className="flex items-center">
 //                           <Calendar className="h-4 w-4 mr-2" />
 //                           {new Date(user.createdAt).toLocaleDateString()}
@@ -537,8 +539,8 @@
 //                           </div>
 //                         )}
 //                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-//                         <div className="flex items-center space-x-2">
+//                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider text-sm font-medium" data-label="Actions">
+//                         <div className="flex items-center space-x-2 justify-start md:justify-start">
 //                           {/* View User */}
 //                           <button
 //                             onClick={() => {
@@ -991,7 +993,10 @@
 
 
 
-// src/pages/admin/users.tsx
+
+
+
+
 
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/layout/AdminLayout';
@@ -1001,7 +1006,7 @@ import {
   Search, Filter, Plus, Edit, Trash2, Eye, Mail, Phone, Calendar, 
   Shield, UserCheck, UserX, MoreHorizontal, Users as UsersIcon, 
   Crown, Ban, ArrowLeft, X, Check, AlertTriangle, Download,
-  UserPlus, Settings, RefreshCw, FileText, MessageCircle
+  UserPlus, RefreshCw
 } from 'lucide-react';
 import { useRouter } from 'next/router';
 
@@ -1015,8 +1020,6 @@ interface User {
   role: 'customer' | 'admin';
   isEmailVerified: boolean;
   profileImage?: string;
-  totalBookings: number;
-  totalSpent: number;
   lastLoginAt?: string;
   createdAt: string;
   isActive: boolean;
@@ -1060,6 +1063,7 @@ const UserManagement: React.FC = () => {
   });
   const [editUserData, setEditUserData] = useState<Partial<User>>({});
   const [showEditModal, setShowEditModal] = useState(false);
+  const [error, setError] = useState<string>('');
   const router = useRouter();
 
   // Check if current user is admin
@@ -1075,23 +1079,42 @@ const UserManagement: React.FC = () => {
     }
   }, [isLoading, isAdmin]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (isRefresh = false) => {
     try {
-      const response = await fetch('/api/admin/users', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      } else if (response.status === 403) {
-        router.push('/unauthorized');
+      if (isRefresh) {
+        setActionLoading('refresh');
+      } else {
+        setLoading(true);
       }
-    } catch (error) {
+      setError('');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('No authentication token found');
+        router.push('/auth/login');
+        return;
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      const response = await fetch('/api/admin/users', { headers });
+      if (response.ok) {
+        const usersData = await response.json();
+        setUsers(usersData);
+      } else if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('token');
+        router.push('/auth/login');
+      } else {
+        throw new Error(`Failed to fetch users: ${response.status}`);
+      }
+    } catch (error: any) {
       console.error('Failed to fetch users:', error);
+      setError(error.message || 'Failed to load users');
     } finally {
       setLoading(false);
+      setActionLoading(null);
     }
   };
 
@@ -1267,6 +1290,8 @@ const UserManagement: React.FC = () => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
+      } else {
+        throw new Error('Failed to export users');
       }
     } catch (error) {
       console.error('Failed to export users:', error);
@@ -1325,6 +1350,23 @@ const UserManagement: React.FC = () => {
       </Head>
       <AdminLayout title="User Management">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Error Display */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+              <AlertTriangle className="h-5 w-5 text-red-500 mr-2 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-red-600 font-medium">Error</p>
+                <p className="text-sm text-red-600">{error}</p>
+                <button
+                  onClick={() => fetchUsers(true)}
+                  className="mt-2 text-sm text-blue-600 hover:text-blue-800 underline"
+                >
+                  Retry
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Back Button */}
           <div className="mb-6">
             <button
@@ -1340,7 +1382,6 @@ const UserManagement: React.FC = () => {
           <div className="mb-8">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
               <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                {/* Search */}
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
@@ -1351,8 +1392,6 @@ const UserManagement: React.FC = () => {
                     className="pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full"
                   />
                 </div>
-
-                {/* Role Filter */}
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
@@ -1362,8 +1401,6 @@ const UserManagement: React.FC = () => {
                   <option value="customer" className="bg-gray-800">Customer</option>
                   <option value="admin" className="bg-gray-800">Admin</option>
                 </select>
-
-                {/* Status Filter */}
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
@@ -1375,18 +1412,15 @@ const UserManagement: React.FC = () => {
                   <option value="verified" className="bg-gray-800">Email Verified</option>
                   <option value="unverified" className="bg-gray-800">Email Unverified</option>
                 </select>
-
-                {/* Refresh Button */}
                 <button
-                  onClick={fetchUsers}
-                  className="p-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors"
+                  onClick={() => fetchUsers(true)}
+                  disabled={actionLoading === 'refresh'}
+                  className="p-2 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition-colors disabled:opacity-50"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className={`h-4 w-4 ${actionLoading === 'refresh' ? 'animate-spin' : ''}`} />
                 </button>
               </div>
-
               <div className="flex flex-wrap gap-2 w-full lg:w-auto justify-start lg:justify-end">
-                {/* Export Button */}
                 <button
                   onClick={exportUsers}
                   className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 shadow-lg transform hover:scale-105"
@@ -1394,8 +1428,6 @@ const UserManagement: React.FC = () => {
                   <Download className="h-4 w-4 mr-2" />
                   Export
                 </button>
-
-                {/* Add User Button */}
                 <button
                   onClick={() => setShowCreateModal(true)}
                   className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition-all duration-200 shadow-lg transform hover:scale-105"
@@ -1436,15 +1468,6 @@ const UserManagement: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-6">
-              <div className="flex items-center">
-                <Shield className="h-8 w-8 text-yellow-400" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-300">Verified</p>
-                  <p className="text-2xl font-bold text-white">{users.filter(u => u.isEmailVerified).length}</p>
-                </div>
-              </div>
-            </div> */}
           </div>
 
           {/* Users Table */}
@@ -1456,7 +1479,6 @@ const UserManagement: React.FC = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">User</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Contact</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Role & Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Activity</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Joined</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                   </tr>
@@ -1513,12 +1535,6 @@ const UserManagement: React.FC = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider text-sm text-gray-300" data-label="Activity">
-                        <div>
-                          <div className="text-white font-medium">{user.totalBookings} bookings</div>
-                          <div className="text-green-400">₹{user.totalSpent.toLocaleString()} spent</div>
-                        </div>
-                      </td>
                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider text-sm text-gray-300" data-label="Joined">
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 mr-2" />
@@ -1532,7 +1548,6 @@ const UserManagement: React.FC = () => {
                       </td>
                       <td className="block md:table-cell px-6 py-2 md:py-4 text-left before:content-[attr(data-label)] before:block md:before:hidden before:font-medium before:text-gray-300 before:uppercase before:text-xs before:tracking-wider text-sm font-medium" data-label="Actions">
                         <div className="flex items-center space-x-2 justify-start md:justify-start">
-                          {/* View User */}
                           <button
                             onClick={() => {
                               setSelectedUser(user);
@@ -1543,8 +1558,6 @@ const UserManagement: React.FC = () => {
                           >
                             <Eye className="h-4 w-4" />
                           </button>
-
-                          {/* Edit User */}
                           <button
                             onClick={() => {
                               setSelectedUser(user);
@@ -1556,8 +1569,6 @@ const UserManagement: React.FC = () => {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
-
-                          {/* Toggle Status */}
                           <button
                             onClick={() => handleStatusToggle(user.id, user.isActive)}
                             disabled={actionLoading === `status-${user.id}`}
@@ -1572,8 +1583,6 @@ const UserManagement: React.FC = () => {
                               <UserCheck className="h-4 w-4" />
                             )}
                           </button>
-
-                          {/* Delete User */}
                           <button
                             onClick={() => {
                               setUserToDelete(user);
@@ -1802,7 +1811,6 @@ const UserManagement: React.FC = () => {
               </div>
               
               <div className="space-y-6">
-                {/* Profile Section */}
                 <div className="flex items-center space-x-4 p-4 bg-gray-700 rounded-lg">
                   <div className="h-16 w-16 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center text-white text-xl font-semibold">
                     {selectedUser.profileImage ? (
@@ -1834,8 +1842,6 @@ const UserManagement: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Contact Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-700 p-4 rounded-lg">
                     <h5 className="text-sm font-medium text-gray-300 mb-2">Contact Information</h5>
@@ -1852,7 +1858,6 @@ const UserManagement: React.FC = () => {
                       )}
                     </div>
                   </div>
-
                   <div className="bg-gray-700 p-4 rounded-lg">
                     <h5 className="text-sm font-medium text-gray-300 mb-2">Account Information</h5>
                     <div className="space-y-2">
@@ -1870,23 +1875,6 @@ const UserManagement: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Activity Statistics */}
-                <div className="bg-gray-700 p-4 rounded-lg">
-                  <h5 className="text-sm font-medium text-gray-300 mb-3">Activity Statistics</h5>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-400">{selectedUser.totalBookings}</div>
-                      <div className="text-sm text-gray-300">Total Bookings</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-400">₹{selectedUser.totalSpent.toLocaleString()}</div>
-                      <div className="text-sm text-gray-300">Total Spent</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Quick Actions */}
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => {
@@ -1971,4 +1959,3 @@ const UserManagement: React.FC = () => {
 };
 
 export default UserManagement;
-
