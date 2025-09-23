@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import connectDB from '@/lib/db/connection';
 import User from '@/lib/db/models/User';
 import Booking from '@/lib/db/models/Booking';
-import Package from '@/lib/db/models/Package';
+// import Package from '@/lib/db/models/Package';
 import { verifyToken } from '@/lib/auth/utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

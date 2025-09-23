@@ -1517,3 +1517,403 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { useRequireAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+import AdminLayout from '@/components/layout/AdminLayout';
+import {
+  Settings as SettingsIcon,
+  Home,
+  Palette,
+  CreditCard,
+  Save,
+  ArrowLeft,
+  AlertCircle,
+  CheckCircle,
+  RefreshCw
+} from 'lucide-react';
+
+interface CompanySettings {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  website: string;
+}
+
+interface ThemeSettings {
+  mode: 'light' | 'dark' | 'system';
+  primaryColor: string;
+}
+
+interface PaymentSettings {
+  enableRazorpay: boolean;
+  razorpayKeyId: string;
+  razorpayKeySecret: string;
+  currency: string;
+}
+
+const AdminSettings: React.FC = () => {
+  const { user, isLoading } = useRequireAuth('/auth/login');
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('company');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [error, setError] = useState<string>('');
+
+  const [companySettings, setCompanySettings] = useState<CompanySettings>({
+    name: 'Jai Mata Di Travels',
+    email: 'info@jaimataditravels.com',
+    phone: '+91-7006377796',
+    address: 'Bengaluru, Karnataka, India',
+    website: 'https://jaimataditravels.com'
+  });
+
+  const [themeSettings, setThemeSettings] = useState<ThemeSettings>({
+    mode: 'system',
+    primaryColor: '#f97316'
+  });
+
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
+    enableRazorpay: true,
+    razorpayKeyId: '',
+    razorpayKeySecret: '',
+    currency: 'INR'
+  });
+
+  const isAdmin = user?.role === 'admin';
+
+  useEffect(() => {
+    if (!isLoading && !isAdmin) {
+      router.push('/unauthorized');
+      return;
+    }
+    if (isAdmin) {
+      fetchSettings();
+    }
+  }, [isLoading, isAdmin, router]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/admin/settings', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.company) setCompanySettings(data.company);
+        if (data.theme) setThemeSettings(data.theme);
+        if (data.payment) setPaymentSettings(data.payment);
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+      setError('Failed to load settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveSettings = async () => {
+    setSaving(true);
+    setError('');
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          company: companySettings,
+          theme: themeSettings,
+          payment: paymentSettings
+        })
+      });
+
+      if (response.ok) {
+        setShowSuccessMessage(true);
+        setTimeout(() => setShowSuccessMessage(false), 3000);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Failed to save settings');
+      }
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      setError('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const tabs = [
+    { id: 'company', label: 'Company', icon: Home },
+    { id: 'theme', label: 'Theme', icon: Palette },
+    { id: 'payment', label: 'Payment', icon: CreditCard }
+  ];
+
+  if (isLoading || loading) {
+    return (
+      <AdminLayout title="Settings">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <AdminLayout title="Access Denied">
+        <div className="flex items-center justify-center h-64 px-4">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
+            <p className="text-gray-400 text-sm">You don&apos;t have permission to access this page.</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Settings - Travel Admin</title>
+      </Head>
+      <AdminLayout title="Settings">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="mb-6">
+            <div className="flex justify-between items-center gap-4">
+              <button
+                onClick={() => router.back()}
+                className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              >
+                <ArrowLeft className="h-5 w-5 mr-2" />
+                Back
+              </button>
+              <button
+                onClick={saveSettings}
+                disabled={saving}
+                className="flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Settings
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {showSuccessMessage && (
+            <div className="mb-4 p-4 bg-green-100 border border-green-200 rounded-lg flex items-center">
+              <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+              <span className="text-green-800">Settings saved successfully!</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-4 p-4 bg-red-100 border border-red-200 rounded-lg flex items-center">
+              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+              <span className="text-red-800">{error}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-1">
+              <div className="bg-gray-800 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <SettingsIcon className="h-5 w-5 mr-2" />
+                  Settings
+                </h3>
+                <nav className="space-y-2">
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`w-full flex items-center px-3 py-2 rounded-lg text-left ${
+                          activeTab === tab.id
+                            ? 'bg-orange-500 text-white'
+                            : 'text-gray-300 hover:bg-gray-700'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 mr-3" />
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <div className="bg-gray-800 rounded-lg p-6">
+                {activeTab === 'company' && (
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-bold text-white mb-4">Company Information</h2>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Company Name</label>
+                      <input
+                        type="text"
+                        value={companySettings.name}
+                        onChange={(e) => setCompanySettings({ ...companySettings, name: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={companySettings.email}
+                        onChange={(e) => setCompanySettings({ ...companySettings, email: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Phone</label>
+                      <input
+                        type="tel"
+                        value={companySettings.phone}
+                        onChange={(e) => setCompanySettings({ ...companySettings, phone: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Address</label>
+                      <textarea
+                        value={companySettings.address}
+                        onChange={(e) => setCompanySettings({ ...companySettings, address: e.target.value })}
+                        rows={3}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Website URL</label>
+                      <input
+                        type="url"
+                        value={companySettings.website}
+                        onChange={(e) => setCompanySettings({ ...companySettings, website: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'theme' && (
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-bold text-white mb-4">Theme Settings</h2>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Theme Mode</label>
+                      <select
+                        value={themeSettings.mode}
+                        onChange={(e) => setThemeSettings({ ...themeSettings, mode: e.target.value as 'light' | 'dark' | 'system' })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="system">System</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Primary Color</label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="color"
+                          value={themeSettings.primaryColor}
+                          onChange={(e) => setThemeSettings({ ...themeSettings, primaryColor: e.target.value })}
+                          className="w-12 h-10 rounded border border-gray-600"
+                        />
+                        <input
+                          type="text"
+                          value={themeSettings.primaryColor}
+                          onChange={(e) => setThemeSettings({ ...themeSettings, primaryColor: e.target.value })}
+                          className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'payment' && (
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-bold text-white mb-4">Payment Settings</h2>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Currency</label>
+                      <select
+                        value={paymentSettings.currency}
+                        onChange={(e) => setPaymentSettings({ ...paymentSettings, currency: e.target.value })}
+                        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option value="INR">INR (₹)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                      </select>
+                    </div>
+                    <div className="border border-gray-600 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-white">Razorpay</h3>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={paymentSettings.enableRazorpay}
+                            onChange={(e) => setPaymentSettings({ ...paymentSettings, enableRazorpay: e.target.checked })}
+                            className="mr-2"
+                          />
+                          <span className="text-gray-300">Enable</span>
+                        </label>
+                      </div>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Key ID</label>
+                          <input
+                            type="text"
+                            value={paymentSettings.razorpayKeyId}
+                            onChange={(e) => setPaymentSettings({ ...paymentSettings, razorpayKeyId: e.target.value })}
+                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Key Secret</label>
+                          <input
+                            type="password"
+                            value={paymentSettings.razorpayKeySecret}
+                            onChange={(e) => setPaymentSettings({ ...paymentSettings, razorpayKeySecret: e.target.value })}
+                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
+    </>
+  );
+};
+
+export default AdminSettings;

@@ -202,6 +202,186 @@
 
 
 
+// // src/pages/api/bookings/[id]/pdf.ts
+// import { NextApiRequest, NextApiResponse } from 'next';
+// import jwt from 'jsonwebtoken';
+// import connectDB from '@/lib/db/connection';
+// import Booking from '@/lib/db/models/Booking';
+// import PDFDocument from 'pdfkit';
+
+// const generateBookingPDF = async (booking: any): Promise<Buffer> => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       // Create a new PDF document
+//       const doc = new PDFDocument({ margin: 50 });
+//       const chunks: Buffer[] = [];
+
+//       // Collect the PDF data
+//       doc.on('data', (chunk) => chunks.push(chunk));
+//       doc.on('end', () => resolve(Buffer.concat(chunks)));
+//       doc.on('error', reject);
+
+//       // Header
+//       doc.fontSize(20).text('TRAVEL QUENCH', { align: 'center' });
+//       doc.fontSize(16).text('BOOKING CONFIRMATION', { align: 'center' });
+//       doc.moveDown();
+
+//       // Booking ID
+//       doc.fontSize(12).text(`Booking ID: ${booking.bookingId || booking.bookingReference}`, { align: 'center' });
+//       doc.moveDown(2);
+
+//       // Package Details Section
+//       doc.fontSize(14).text('PACKAGE DETAILS', { underline: true });
+//       doc.moveDown(0.5);
+//       doc.fontSize(10);
+//       doc.text(`Package: ${booking.packageDetails?.title || 'Travel Package'}`);
+//       doc.text(`Destination: ${booking.packageDetails?.destination || 'Unknown'}`);
+//       doc.text(`Duration: ${booking.packageDetails?.duration || 1} days`);
+//       doc.text(`Type: ${booking.packageDetails?.type || 'domestic'}`);
+//       doc.moveDown();
+
+//       // Travel Details Section
+//       doc.fontSize(14).text('TRAVEL DETAILS', { underline: true });
+//       doc.moveDown(0.5);
+//       doc.fontSize(10);
+//       doc.text(`Travel Date: ${booking.travelDate ? new Date(booking.travelDate).toLocaleDateString() : 'Not set'}`);
+//       doc.text(`Adults: ${booking.travelersCount?.adults || booking.travelers || 1}`);
+//       doc.text(`Children: ${booking.travelersCount?.children || 0}`);
+//       doc.moveDown();
+
+//       // Customer Information Section
+//       doc.fontSize(14).text('CUSTOMER INFORMATION', { underline: true });
+//       doc.moveDown(0.5);
+//       doc.fontSize(10);
+//       doc.text(`Name: ${booking.customerInfo?.name || booking.contactDetails?.name || 'Not provided'}`);
+//       doc.text(`Email: ${booking.customerInfo?.email || booking.contactDetails?.email || 'Not provided'}`);
+//       doc.text(`Phone: ${booking.customerInfo?.phone || booking.contactDetails?.phone || 'Not provided'}`);
+//       doc.text(`Address: ${booking.customerInfo?.address || booking.contactDetails?.address || 'Not provided'}`);
+//       doc.text(`Emergency Contact: ${booking.customerInfo?.emergencyContact || 'Not provided'}`);
+//       doc.moveDown();
+
+//       // Payment Details Section
+//       doc.fontSize(14).text('PAYMENT DETAILS', { underline: true });
+//       doc.moveDown(0.5);
+//       doc.fontSize(10);
+//       doc.text(`Total Amount: ₹${booking.totalAmount?.toLocaleString() || '0'}`);
+//       doc.text(`Payment ID: ${booking.paymentId || 'Pending'}`);
+//       doc.text(`Payment Method: ${booking.paymentMethod || 'Not selected'}`);
+//       doc.text(`Payment Status: ${booking.paymentStatus || 'pending'}`);
+//       if (booking.paidAt) {
+//         doc.text(`Payment Date: ${new Date(booking.paidAt).toLocaleDateString()}`);
+//       }
+//       doc.text(`Status: ${booking.status || 'pending'}`);
+//       doc.moveDown();
+
+//       // Special Requests Section
+//       if (booking.specialRequests) {
+//         doc.fontSize(14).text('SPECIAL REQUESTS', { underline: true });
+//         doc.moveDown(0.5);
+//         doc.fontSize(10);
+//         doc.text(booking.specialRequests);
+//         doc.moveDown();
+//       }
+
+//       // Terms & Conditions Section
+//       doc.fontSize(14).text('TERMS & CONDITIONS', { underline: true });
+//       doc.moveDown(0.5);
+//       doc.fontSize(9);
+//       doc.text('1. This booking is confirmed and non-refundable after 48 hours.');
+//       doc.text('2. Please carry valid identification documents for travel.');
+//       doc.text('3. Contact our support team for any queries: +91 12345 67890');
+//       doc.text('4. Check-in 2 hours before departure for domestic trips.');
+//       doc.text('5. Check-in 3 hours before departure for international trips.');
+//       doc.moveDown();
+
+//       // Footer
+//       doc.fontSize(10);
+//       doc.text('Thank you for choosing Travel Quench!', { align: 'center' });
+//       doc.text('Visit us at: www.travelquench.com', { align: 'center' });
+//       doc.text('Support: support@travelquench.com', { align: 'center' });
+//       doc.moveDown();
+//       doc.fontSize(8);
+//       doc.text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
+
+//       // Finalize the PDF
+//       doc.end();
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// };
+
+// export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+//   if (req.method !== 'GET') {
+//     return res.status(405).json({ success: false, message: 'Method not allowed' });
+//   }
+
+//   try {
+//     await connectDB();
+
+//     // Verify authentication
+//     const token = req.headers.authorization?.replace('Bearer ', '');
+//     if (!token) {
+//       return res.status(401).json({ success: false, message: 'Authentication required' });
+//     }
+
+//     const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
+//     const decoded = jwt.verify(token, JWT_SECRET) as any;
+//     const userId = decoded.userId;
+//     const { id: bookingId } = req.query;
+
+//     if (!bookingId || typeof bookingId !== 'string') {
+//       return res.status(400).json({ success: false, message: 'Invalid booking ID' });
+//     }
+
+//     // Find booking
+//     const booking = await Booking.findById(bookingId);
+
+//     if (!booking) {
+//       return res.status(404).json({ success: false, message: 'Booking not found' });
+//     }
+
+//     // Verify booking belongs to user
+//     if (booking.userId.toString() !== userId) {
+//       return res.status(403).json({ success: false, message: 'Access denied' });
+//     }
+
+//     // Generate PDF
+//     const pdfBuffer = await generateBookingPDF(booking);
+
+//     // Set headers for PDF download
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.setHeader('Content-Disposition', `attachment; filename="booking-${booking.bookingId || booking.bookingReference || 'unknown'}.pdf"`);
+//     res.setHeader('Content-Length', pdfBuffer.length);
+
+//     // Send PDF
+//     res.status(200).send(pdfBuffer);
+
+//   } catch (error) {
+//     console.error('PDF generation error:', error);
+    
+//     if (error.name === 'JsonWebTokenError') {
+//       return res.status(401).json({ success: false, message: 'Invalid token' });
+//     }
+    
+//     res.status(500).json({ 
+//       success: false, 
+//       message: 'Failed to generate PDF' 
+//     });
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
 // src/pages/api/bookings/[id]/pdf.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
@@ -209,7 +389,52 @@ import connectDB from '@/lib/db/connection';
 import Booking from '@/lib/db/models/Booking';
 import PDFDocument from 'pdfkit';
 
-const generateBookingPDF = async (booking: any): Promise<Buffer> => {
+interface JwtPayload {
+  userId: string;
+  email: string;
+  role: string;
+  [key: string]: unknown;
+}
+
+interface BookingData {
+  bookingId?: string;
+  bookingReference?: string;
+  packageDetails?: {
+    title?: string;
+    destination?: string;
+    duration?: number;
+    type?: string;
+  };
+  travelDate?: Date;
+  travelersCount?: {
+    adults?: number;
+    children?: number;
+  };
+  travelers?: number;
+  customerInfo?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    emergencyContact?: string;
+  };
+  contactDetails?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  totalAmount?: number;
+  paymentId?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  paidAt?: Date;
+  status?: string;
+  specialRequests?: string;
+  userId: string;
+}
+
+const generateBookingPDF = async (booking: BookingData): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     try {
       // Create a new PDF document
@@ -326,7 +551,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     const userId = decoded.userId;
     const { id: bookingId } = req.query;
 
@@ -357,10 +582,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Send PDF
     res.status(200).send(pdfBuffer);
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('PDF generation error:', error);
     
-    if (error.name === 'JsonWebTokenError') {
+    if ((error as Error).name === 'JsonWebTokenError') {
       return res.status(401).json({ success: false, message: 'Invalid token' });
     }
     

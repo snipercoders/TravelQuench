@@ -429,6 +429,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+// src/pages/customer/booking/success.tsx
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -443,13 +453,11 @@ import {
   Phone,
   MapPin,
   Calendar,
-  Users,
   Clock,
   Share2,
   MessageCircle,
   Home,
   Receipt,
-  CreditCard,
   AlertCircle
 } from 'lucide-react';
 
@@ -494,9 +502,9 @@ interface BookingDetails {
 }
 
 const SuccessPage: React.FC = () => {
-  const { user, isLoading } = useRequireAuth();
+  const { isLoading } = useRequireAuth();
   const router = useRouter();
-  const { bookingId, paymentId } = router.query;
+  const { bookingId } = router.query;
   
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -539,7 +547,7 @@ const SuccessPage: React.FC = () => {
       } else {
         setError('Failed to load booking details');
       }
-    } catch (err) {
+    } catch {
       setError('Network error occurred');
     } finally {
       setLoading(false);
@@ -584,8 +592,8 @@ const SuccessPage: React.FC = () => {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-      } catch (err) {
-        console.log('Error sharing:', err);
+      } catch {
+        // Silently handle error
       }
     } else {
       const url = encodeURIComponent(shareData.url);
@@ -595,7 +603,7 @@ const SuccessPage: React.FC = () => {
   };
 
   const sendWhatsAppMessage = () => {
-    const message = `Hi! I just booked a trip to ${booking?.packageDetails.destination} (Booking ID: ${booking?.bookingId}). Looking forward to my travel!`;
+    const message = `Hi! I&apos;m just booked a trip to ${booking?.packageDetails.destination} (Booking ID: ${booking?.bookingId}). Looking forward to my travel!`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/911234567890?text=${encodedMessage}`, '_blank');
   };
@@ -641,10 +649,9 @@ const SuccessPage: React.FC = () => {
             <div className="mt-8 sm:mt-4 md:mt-6 w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
               <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-500" />
             </div>
-    <h1 className="mt-4 sm:mt-0 text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
-  Booking Confirmed!
-</h1>
-
+            <h1 className="mt-4 sm:mt-0 text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
+              Booking Confirmed!
+            </h1>
             <p className="text-sm sm:text-base text-gray-600">
               Your payment has been processed successfully. Get ready for an amazing trip!
             </p>
@@ -799,7 +806,7 @@ const SuccessPage: React.FC = () => {
 
           {/* What's Next */}
           <Card className="p-3 sm:p-4 mb-3 sm:mb-4">
-            <h3 className="font-semibold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">What's Next?</h3>
+            <h3 className="font-semibold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base">What&apos;s Next?</h3>
             <div className="space-y-2 sm:space-y-3">
               <div className="flex items-start">
                 <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mr-2 sm:mr-3 mt-0.5" />

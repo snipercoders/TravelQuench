@@ -171,14 +171,275 @@
 
 
 
+// // src/lib/email/templates.ts
+// interface EmailTemplateProps {
+//   name?: string;
+//   email?: string;
+//   resetUrl?: string;
+//   verificationUrl?: string;
+//   otp?: string;
+//   bookingDetails?: any;
+// }
+
+// const baseStyles = `
+//   font-family: Arial, sans-serif;
+//   max-width: 600px;
+//   margin: 0 auto;
+//   padding: 20px;
+//   background-color: #ffffff;
+// `;
+
+// const buttonStyles = `
+//   background-color: #2563eb;
+//   color: white;
+//   padding: 12px 24px;
+//   text-decoration: none;
+//   border-radius: 6px;
+//   display: inline-block;
+//   font-weight: 600;
+//   text-align: center;
+// `;
+
+// export const emailTemplates = {
+//   forgotPassword: ({ name, resetUrl }: EmailTemplateProps) => ({
+//     subject: 'Reset Your Password - Travel Quench',
+//     html: `
+//       <div style="${baseStyles}">
+//         <div style="text-align: center; margin-bottom: 30px;">
+//           <h1 style="color: #2563eb; margin: 0;">Travel Quench</h1>
+//         </div>
+        
+//         <h2 style="color: #1f2937; margin-bottom: 20px;">Reset Your Password</h2>
+        
+//         ${name ? `<p>Hi ${name},</p>` : '<p>Hello,</p>'}
+        
+//         <p>You requested a password reset for your Travel Quench account. Click the button below to reset your password:</p>
+        
+//         <div style="text-align: center; margin: 30px 0;">
+//           <a href="${resetUrl}" style="${buttonStyles}">
+//             Reset Password
+//           </a>
+//         </div>
+        
+//         <p>If the button doesn't work, copy and paste this link into your browser:</p>
+//         <p style="word-break: break-all; background-color: #f3f4f6; padding: 10px; border-radius: 4px;">
+//           <a href="${resetUrl}">${resetUrl}</a>
+//         </p>
+        
+//         <p><strong>This link will expire in 1 hour for security reasons.</strong></p>
+        
+//         <p>If you didn't request this password reset, please ignore this email and your password will remain unchanged.</p>
+        
+//         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        
+//         <div style="color: #6b7280; font-size: 14px; text-align: center;">
+//           <p>Best regards,<br>Travel Quench Team</p>
+//           <p>If you have any questions, contact us at support@travelquench.com</p>
+//         </div>
+//       </div>
+//     `
+//   }),
+
+//   emailVerification: ({ name, verificationUrl }: EmailTemplateProps) => ({
+//     subject: 'Verify Your Email - Travel Quench',
+//     html: `
+//       <div style="${baseStyles}">
+//         <div style="text-align: center; margin-bottom: 30px;">
+//           <h1 style="color: #2563eb; margin: 0;">Travel Quench</h1>
+//         </div>
+        
+//         <h2 style="color: #1f2937; margin-bottom: 20px;">Verify Your Email Address</h2>
+        
+//         ${name ? `<p>Hi ${name},</p>` : '<p>Hello,</p>'}
+        
+//         <p>Thank you for signing up with Travel Quench! Please verify your email address by clicking the button below:</p>
+        
+//         <div style="text-align: center; margin: 30px 0;">
+//           <a href="${verificationUrl}" style="${buttonStyles}">
+//             Verify Email Address
+//           </a>
+//         </div>
+        
+//         <p>If the button doesn't work, copy and paste this link into your browser:</p>
+//         <p style="word-break: break-all; background-color: #f3f4f6; padding: 10px; border-radius: 4px;">
+//           <a href="${verificationUrl}">${verificationUrl}</a>
+//         </p>
+        
+//         <p>If you didn't create an account with Travel Quench, please ignore this email.</p>
+        
+//         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        
+//         <div style="color: #6b7280; font-size: 14px; text-align: center;">
+//           <p>Best regards,<br>Travel Quench Team</p>
+//         </div>
+//       </div>
+//     `
+//   }),
+
+//   otpVerification: ({ name, otp }: EmailTemplateProps) => ({
+//     subject: 'Your Verification Code - Travel Quench',
+//     html: `
+//       <div style="${baseStyles}">
+//         <div style="text-align: center; margin-bottom: 30px;">
+//           <h1 style="color: #2563eb; margin: 0;">Travel Quench</h1>
+//         </div>
+        
+//         <h2 style="color: #1f2937; margin-bottom: 20px;">Your Verification Code</h2>
+        
+//         ${name ? `<p>Hi ${name},</p>` : '<p>Hello,</p>'}
+        
+//         <p>Your verification code is:</p>
+        
+//         <div style="text-align: center; margin: 30px 0;">
+//           <div style="font-size: 32px; font-weight: bold; color: #2563eb; letter-spacing: 8px; background-color: #eff6ff; padding: 20px; border-radius: 8px; border: 2px solid #bfdbfe;">
+//             ${otp}
+//           </div>
+//         </div>
+        
+//         <p>This code will expire in 10 minutes for security reasons.</p>
+        
+//         <p>If you didn't request this code, please ignore this email.</p>
+        
+//         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        
+//         <div style="color: #6b7280; font-size: 14px; text-align: center;">
+//           <p>Best regards,<br>Travel Quench Team</p>
+//         </div>
+//       </div>
+//     `
+//   }),
+
+//   bookingConfirmation: ({ name, bookingDetails }: EmailTemplateProps) => ({
+//     subject: `Booking Confirmation - ${bookingDetails?.packageTitle} - Travel Quench`,
+//     html: `
+//       <div style="${baseStyles}">
+//         <div style="text-align: center; margin-bottom: 30px;">
+//           <h1 style="color: #2563eb; margin: 0;">Travel Quench</h1>
+//         </div>
+        
+//         <h2 style="color: #1f2937; margin-bottom: 20px;">Booking Confirmation</h2>
+        
+//         <p>Hi ${name || 'Valued Customer'},</p>
+        
+//         <p>Thank you for booking with Travel Quench! Your booking has been confirmed.</p>
+        
+//         <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+//           <h3 style="color: #2563eb; margin-top: 0;">Booking Details</h3>
+//           <p><strong>Booking ID:</strong> ${bookingDetails?.bookingId}</p>
+//           <p><strong>Package:</strong> ${bookingDetails?.packageTitle}</p>
+//           <p><strong>Destination:</strong> ${bookingDetails?.destination}</p>
+//           <p><strong>Travel Date:</strong> ${bookingDetails?.startDate}</p>
+//           <p><strong>Travelers:</strong> ${bookingDetails?.travelers}</p>
+//           <p><strong>Total Amount:</strong> ₹${bookingDetails?.totalAmount}</p>
+//         </div>
+        
+//         <p>We'll send you more details about your trip soon. If you have any questions, please don't hesitate to contact us.</p>
+        
+//         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        
+//         <div style="color: #6b7280; font-size: 14px; text-align: center;">
+//           <p>Best regards,<br>Travel Quench Team</p>
+//           <p>Contact: support@travelquench.com | +91-XXXXXXXXXX</p>
+//         </div>
+//       </div>
+//     `
+//   }),
+
+//   welcome: ({ name }: EmailTemplateProps) => ({
+//     subject: 'Welcome to Travel Quench!',
+//     html: `
+//       <div style="${baseStyles}">
+//         <div style="text-align: center; margin-bottom: 30px;">
+//           <h1 style="color: #2563eb; margin: 0;">Travel Quench</h1>
+//         </div>
+        
+//         <h2 style="color: #1f2937; margin-bottom: 20px;">Welcome to Travel Quench!</h2>
+        
+//         <p>Hi ${name},</p>
+        
+//         <p>Welcome to Travel Quench! We're excited to have you join our community of travel enthusiasts.</p>
+        
+//         <p>Here's what you can do with your new account:</p>
+//         <ul style="padding-left: 20px;">
+//           <li>Browse and book amazing travel packages</li>
+//           <li>Save packages to your wishlist</li>
+//           <li>Track your booking history</li>
+//           <li>Get personalized travel recommendations</li>
+//           <li>Customize packages to your preferences</li>
+//         </ul>
+        
+//         <div style="text-align: center; margin: 30px 0;">
+//           <a href="${process.env.NEXT_PUBLIC_BASE_URL}/packages" style="${buttonStyles}">
+//             Explore Packages
+//           </a>
+//         </div>
+        
+//         <p>If you have any questions, our support team is always ready to help!</p>
+        
+//         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+        
+//         <div style="color: #6b7280; font-size: 14px; text-align: center;">
+//           <p>Happy travels,<br>Travel Quench Team</p>
+//           <p>Contact: support@travelquench.com</p>
+//         </div>
+//       </div>
+//     `
+//   })
+// };
+
+
+
+
+
+
+
+
+
+
+
+
 // src/lib/email/templates.ts
+
+// src/lib/email/templates.ts
+import nodemailer from 'nodemailer';
+
+export async function sendConfirmationEmail(email: string, firstName: string, otp: string) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // Replace with your email service
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Email Confirmation',
+    text: `Hello ${firstName},\n\nYour OTP is: ${otp}\n\nThank you!`,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
+
+
+interface BookingDetails {
+  bookingId?: string;
+  packageTitle?: string;
+  destination?: string;
+  startDate?: string | Date;
+  travelers?: number;
+  totalAmount?: number;
+}
+
 interface EmailTemplateProps {
   name?: string;
   email?: string;
   resetUrl?: string;
   verificationUrl?: string;
   otp?: string;
-  bookingDetails?: any;
+  bookingDetails?: BookingDetails;
 }
 
 const baseStyles = `
@@ -237,7 +498,7 @@ export const emailTemplates = {
           <p>If you have any questions, contact us at support@travelquench.com</p>
         </div>
       </div>
-    `
+    `,
   }),
 
   emailVerification: ({ name, verificationUrl }: EmailTemplateProps) => ({
@@ -273,7 +534,7 @@ export const emailTemplates = {
           <p>Best regards,<br>Travel Quench Team</p>
         </div>
       </div>
-    `
+    `,
   }),
 
   otpVerification: ({ name, otp }: EmailTemplateProps) => ({
@@ -306,11 +567,11 @@ export const emailTemplates = {
           <p>Best regards,<br>Travel Quench Team</p>
         </div>
       </div>
-    `
+    `,
   }),
 
   bookingConfirmation: ({ name, bookingDetails }: EmailTemplateProps) => ({
-    subject: `Booking Confirmation - ${bookingDetails?.packageTitle} - Travel Quench`,
+    subject: `Booking Confirmation - ${bookingDetails?.packageTitle || 'Your Trip'} - Travel Quench`,
     html: `
       <div style="${baseStyles}">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -325,12 +586,12 @@ export const emailTemplates = {
         
         <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="color: #2563eb; margin-top: 0;">Booking Details</h3>
-          <p><strong>Booking ID:</strong> ${bookingDetails?.bookingId}</p>
-          <p><strong>Package:</strong> ${bookingDetails?.packageTitle}</p>
-          <p><strong>Destination:</strong> ${bookingDetails?.destination}</p>
-          <p><strong>Travel Date:</strong> ${bookingDetails?.startDate}</p>
-          <p><strong>Travelers:</strong> ${bookingDetails?.travelers}</p>
-          <p><strong>Total Amount:</strong> ₹${bookingDetails?.totalAmount}</p>
+          <p><strong>Booking ID:</strong> ${bookingDetails?.bookingId || 'N/A'}</p>
+          <p><strong>Package:</strong> ${bookingDetails?.packageTitle || 'N/A'}</p>
+          <p><strong>Destination:</strong> ${bookingDetails?.destination || 'N/A'}</p>
+          <p><strong>Travel Date:</strong> ${bookingDetails?.startDate || 'N/A'}</p>
+          <p><strong>Travelers:</strong> ${bookingDetails?.travelers || 'N/A'}</p>
+          <p><strong>Total Amount:</strong> ₹${bookingDetails?.totalAmount || 'N/A'}</p>
         </div>
         
         <p>We'll send you more details about your trip soon. If you have any questions, please don't hesitate to contact us.</p>
@@ -342,7 +603,7 @@ export const emailTemplates = {
           <p>Contact: support@travelquench.com | +91-XXXXXXXXXX</p>
         </div>
       </div>
-    `
+    `,
   }),
 
   welcome: ({ name }: EmailTemplateProps) => ({
@@ -369,7 +630,7 @@ export const emailTemplates = {
         </ul>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${process.env.NEXT_PUBLIC_BASE_URL}/packages" style="${buttonStyles}">
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/packages" style="${buttonStyles}">
             Explore Packages
           </a>
         </div>
@@ -383,6 +644,6 @@ export const emailTemplates = {
           <p>Contact: support@travelquench.com</p>
         </div>
       </div>
-    `
-  })
+    `,
+  }),
 };

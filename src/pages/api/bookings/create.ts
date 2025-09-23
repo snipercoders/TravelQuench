@@ -161,12 +161,6 @@
 
 
 
-
-
-
-
-
-
 // src/pages/api/bookings/create.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
@@ -174,6 +168,18 @@ import connectDB from '@/lib/db/connection';
 import Booking from '@/lib/db/models/Booking';
 import Package from '@/lib/db/models/Package';
 import User from '@/lib/db/models/User';
+
+interface JwtPayload {
+  userId: string;
+  email: string;
+  role: string;
+  [key: string]: unknown;
+}
+
+interface ValidationError extends Error {
+  name: string;
+  errors: Record<string, { message: string }>;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -190,7 +196,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
     
     const {
       packageId,
@@ -301,15 +307,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Booking creation error:', error);
     
-    if (error.name === 'JsonWebTokenError') {
+    if ((error as Error).name === 'JsonWebTokenError') {
       return res.status(401).json({ success: false, message: 'Invalid token' });
     }
     
-    if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+    if ((error as ValidationError).name === 'ValidationError') {
+      const validationErrors = Object.values((error as ValidationError).errors).map((err) => err.message);
       return res.status(400).json({ 
         success: false, 
         message: 'Validation failed: ' + validationErrors.join(', ') 

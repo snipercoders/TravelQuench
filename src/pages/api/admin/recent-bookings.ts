@@ -195,14 +195,260 @@
 
 
 
+// // src/pages/api/admin/recent-bookings.ts
+// // ============================================================================
+// import type { NextApiResponse } from 'next';
+// import connectDB from '@/lib/db/connection';
+// import Booking from '@/lib/db/models/Booking';
+// import User from '@/lib/db/models/User';
+// import Package from '@/lib/db/models/Package';
+// import { requireAdmin, AuthenticatedRequest } from '@/lib/auth/middleware';
+
+// export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+//   if (req.method !== 'GET') {
+//     return res.status(405).json({ success: false, message: 'Method not allowed' });
+//   }
+
+//   return requireAdmin(async (req: AuthenticatedRequest, res: NextApiResponse) => {
+//     try {
+//       await connectDB();
+//       console.log('📋 Fetching recent bookings...');
+
+//       // Aggregate to get recent bookings with paid amounts, customer, and package details
+//       const bookings = await Booking.aggregate([
+//         { $sort: { createdAt: -1 } }, // Sort by most recent
+//         { $limit: 10 }, // Limit to 10 recent bookings
+//         {
+//           $lookup: {
+//             from: 'users', // MongoDB collection name for User model
+//             localField: 'userId',
+//             foreignField: '_id',
+//             as: 'user'
+//           }
+//         },
+//         { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+//         {
+//           $lookup: {
+//             from: 'packages', // MongoDB collection name for Package model
+//             localField: 'packageId',
+//             foreignField: '_id',
+//             as: 'package'
+//           }
+//         },
+//         { $unwind: { path: '$package', preserveNullAndEmptyArrays: true } },
+//         {
+//           $addFields: {
+//             // Extract paid amount using the same logic as in stats.ts for consistency
+//             paidAmount: {
+//               $cond: {
+//                 if: { $ifNull: ['$payment.paidAmount', false] },
+//                 then: '$payment.paidAmount',
+//                 else: {
+//                   $cond: {
+//                     if: { $ifNull: ['$paidAmount', false] },
+//                     then: '$paidAmount',
+//                     else: {
+//                       $cond: {
+//                         if: { $ifNull: ['$payment.amount', false] },
+//                         then: '$payment.amount',
+//                         else: {
+//                           $cond: {
+//                             if: { $ifNull: ['$paymentAmount', false] },
+//                             then: '$paymentAmount',
+//                             else: { $ifNull: ['$amountPaid', 0] }
+//                           }
+//                         }
+//                       }
+//                     }
+//                   }
+//                 }
+//               }
+//             },
+//             customerName: { $ifNull: ['$user.name', 'Unknown'] },
+//             packageName: { $ifNull: ['$package.name', 'Unknown'] } // Adjust to 'title' if your Package model uses 'title'
+//           }
+//         },
+//         {
+//           $project: {
+//             id: '$_id',
+//             customerName: 1,
+//             packageName: 1,
+//             amount: '$paidAmount', // Use paid amount, can be 0 for unpaid bookings
+//             status: 1,
+//             createdAt: 1,
+//             _id: 0
+//           }
+//         }
+//       ]);
+
+//       // Format to match frontend interface
+//       const formattedBookings = bookings.map((booking: any) => ({
+//         id: booking.id.toString(),
+//         customerName: booking.customerName,
+//         packageName: booking.packageName,
+//         amount: Number(booking.amount) || 0, // Ensure amount is a number
+//         status: booking.status,
+//         createdAt: new Date(booking.createdAt).toISOString()
+//       }));
+
+//       console.log('✅ Recent bookings fetched:', formattedBookings.length);
+//       res.status(200).json({ success: true, bookings: formattedBookings });
+
+//     } catch (error: any) {
+//       console.error('❌ Recent bookings error:', error);
+//       res.status(500).json({ 
+//         success: false, 
+//         message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+//       });
+//     }
+//   })(req, res);
+// }
+
+
+
+
+
+
+
+
+
+// // src/pages/api/admin/recent-bookings.ts
+// import type { NextApiResponse } from 'next';
+// import connectDB from '@/lib/db/connection';
+// import Booking from '@/lib/db/models/Booking';
+// import { requireAdmin, AuthenticatedRequest } from '@/lib/auth/middleware';
+
+// interface BookingAggregate {
+//   // _id: any; // MongoDB ObjectId
+//   id: string;
+//   customerName: string;
+//   packageName: string;
+//   amount: number;
+//   status: string;
+//   createdAt: Date;
+// }
+
+// export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+//   if (req.method !== 'GET') {
+//     return res.status(405).json({ success: false, message: 'Method not allowed' });
+//   }
+
+//   return requireAdmin(async (req: AuthenticatedRequest, res: NextApiResponse) => {
+//     try {
+//       await connectDB();
+//       console.log('📋 Fetching recent bookings...');
+
+//       // Aggregate to get recent bookings with paid amounts, customer, and package details
+//       const bookings: BookingAggregate[] = await Booking.aggregate([
+//         { $sort: { createdAt: -1 } }, // Sort by most recent
+//         { $limit: 10 }, // Limit to 10 recent bookings
+//         {
+//           $lookup: {
+//             from: 'users', // MongoDB collection name for User model
+//             localField: 'userId',
+//             foreignField: '_id',
+//             as: 'user'
+//           }
+//         },
+//         { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+//         {
+//           $lookup: {
+//             from: 'packages', // MongoDB collection name for Package model
+//             localField: 'packageId',
+//             foreignField: '_id',
+//             as: 'package'
+//           }
+//         },
+//         { $unwind: { path: '$package', preserveNullAndEmptyArrays: true } },
+//         {
+//           $addFields: {
+//             // Extract paid amount using the same logic as in stats.ts for consistency
+//             paidAmount: {
+//               $cond: {
+//                 if: { $ifNull: ['$payment.paidAmount', false] },
+//                 then: '$payment.paidAmount',
+//                 else: {
+//                   $cond: {
+//                     if: { $ifNull: ['$paidAmount', false] },
+//                     then: '$paidAmount',
+//                     else: {
+//                       $cond: {
+//                         if: { $ifNull: ['$payment.amount', false] },
+//                         then: '$payment.amount',
+//                         else: {
+//                           $cond: {
+//                             if: { $ifNull: ['$paymentAmount', false] },
+//                             then: '$paymentAmount',
+//                             else: { $ifNull: ['$amountPaid', 0] }
+//                           }
+//                         }
+//                       }
+//                     }
+//                   }
+//                 }
+//               }
+//             },
+//             customerName: { $ifNull: ['$user.name', 'Unknown'] },
+//             packageName: { $ifNull: ['$package.name', 'Unknown'] } // Adjust to 'title' if your Package model uses 'title'
+//           }
+//         },
+//         {
+//           $project: {
+//             id: '$_id',
+//             customerName: 1,
+//             packageName: 1,
+//             amount: '$paidAmount', // Use paid amount, can be 0 for unpaid bookings
+//             status: 1,
+//             createdAt: 1,
+//             _id: 0
+//           }
+//         }
+//       ]);
+
+//       // Format to match frontend interface
+//       const formattedBookings = bookings.map((booking: BookingAggregate) => ({
+//         id: booking.id.toString(),
+//         customerName: booking.customerName,
+//         packageName: booking.packageName,
+//         amount: Number(booking.amount) || 0, // Ensure amount is a number
+//         status: booking.status,
+//         createdAt: new Date(booking.createdAt).toISOString()
+//       }));
+
+//       console.log('✅ Recent bookings fetched:', formattedBookings.length);
+//       res.status(200).json({ success: true, bookings: formattedBookings });
+
+//     } catch (error: Error) {
+//       console.error('❌ Recent bookings error:', error);
+//       res.status(500).json({ 
+//         success: false, 
+//         message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+//       });
+//     }
+//   })(req, res);
+// }
+
+
+
+
+
+
+
 // src/pages/api/admin/recent-bookings.ts
-// ============================================================================
 import type { NextApiResponse } from 'next';
 import connectDB from '@/lib/db/connection';
 import Booking from '@/lib/db/models/Booking';
-import User from '@/lib/db/models/User';
-import Package from '@/lib/db/models/Package';
 import { requireAdmin, AuthenticatedRequest } from '@/lib/auth/middleware';
+
+interface BookingAggregate {
+  // _id: any; // MongoDB ObjectId
+  id: string;
+  customerName: string;
+  packageName: string;
+  amount: number;
+  status: string;
+  createdAt: Date;
+}
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -215,7 +461,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       console.log('📋 Fetching recent bookings...');
 
       // Aggregate to get recent bookings with paid amounts, customer, and package details
-      const bookings = await Booking.aggregate([
+      const bookings: BookingAggregate[] = await Booking.aggregate([
         { $sort: { createdAt: -1 } }, // Sort by most recent
         { $limit: 10 }, // Limit to 10 recent bookings
         {
@@ -282,7 +528,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       ]);
 
       // Format to match frontend interface
-      const formattedBookings = bookings.map((booking: any) => ({
+      const formattedBookings = bookings.map((booking: BookingAggregate) => ({
         id: booking.id.toString(),
         customerName: booking.customerName,
         packageName: booking.packageName,
@@ -294,11 +540,14 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       console.log('✅ Recent bookings fetched:', formattedBookings.length);
       res.status(200).json({ success: true, bookings: formattedBookings });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Recent bookings error:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Internal server error';
+      
       res.status(500).json({ 
         success: false, 
-        message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+        message: process.env.NODE_ENV === 'development' ? errorMessage : 'Internal server error'
       });
     }
   })(req, res);

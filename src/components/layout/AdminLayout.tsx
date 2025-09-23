@@ -143,7 +143,6 @@ import {
   LayoutDashboard,
   Package,
   Users,
-  Settings,
   LogOut,
   Menu,
   X

@@ -254,9 +254,6 @@
 
 
 
-
-
-
 // src/hooks/useWishlist.ts - Fixed Version
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
@@ -306,85 +303,6 @@ export const useWishlist = (): UseWishlistReturn => {
       'Authorization': token ? `Bearer ${token}` : ''
     };
   }, []);
-
-  // Add package to wishlist
-  const addToWishlist = useCallback(async (packageId: string) => {
-    console.log('📦 Adding to wishlist - Package ID:', packageId);
-    console.log('🔐 User authenticated:', isAuthenticated);
-    console.log('👤 User data:', user);
-
-    if (!isAuthenticated || !user) {
-      throw new Error('Please login to add packages to your wishlist');
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const headers = getAuthHeaders();
-      console.log('📡 Request headers:', headers);
-
-      const requestBody = { packageId };
-      console.log('📤 Request body:', requestBody);
-
-      const response = await fetch('/api/users/wishlist', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(requestBody)
-      });
-
-      console.log('📥 Response status:', response.status);
-      console.log('📥 Response statusText:', response.statusText);
-
-      // Log response headers
-      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
-
-      if (response.status === 401) {
-        console.error('❌ 401 Unauthorized - Token may be invalid');
-        
-        // Let's check the response body for more details
-        try {
-          const errorData = await response.json();
-          console.error('❌ 401 Error details:', errorData);
-        } catch (e) {
-          console.error('❌ Could not parse 401 error response');
-        }
-        
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        throw new Error('Session expired. Please login again.');
-      }
-
-      if (response.status === 409) {
-        const errorData = await response.json().catch(() => ({}));
-        console.log('⚠️ 409 Conflict:', errorData);
-        throw new Error(errorData.message || 'Package already in wishlist');
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('❌ API Error:', errorData);
-        throw new Error(errorData.message || `Failed to add to wishlist: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Success response:', data);
-      
-      if (data.success && data.wishlistItem) {
-        setWishlist(prev => [...prev, data.wishlistItem]);
-        console.log('✅ Added to local wishlist state');
-      } else {
-        console.log('🔄 Refreshing entire wishlist as fallback');
-        await fetchWishlist();
-      }
-    } catch (error: any) {
-      console.error('❌ Failed to add to wishlist:', error);
-      setError(error.message || 'Failed to add to wishlist');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, [isAuthenticated, user, getAuthHeaders]);
 
   // Fetch user's wishlist - FIXED VERSION
   const fetchWishlist = useCallback(async () => {
@@ -442,8 +360,8 @@ export const useWishlist = (): UseWishlistReturn => {
           const errorData = await response.json();
           console.error('❌ API Error details:', errorData);
           errorMessage = errorData.message || errorMessage;
-        } catch (parseError) {
-          console.error('❌ Could not parse error response:', parseError);
+        } catch {
+          console.error('❌ Could not parse error response');
           // Try to get text response as fallback
           try {
             const textResponse = await response.text();
@@ -451,8 +369,8 @@ export const useWishlist = (): UseWishlistReturn => {
             if (textResponse.includes('<!DOCTYPE html>') || textResponse.includes('<html>')) {
               errorMessage = 'Server returned HTML instead of JSON. Check if the API endpoint exists.';
             }
-          } catch (textError) {
-            console.error('❌ Could not get text response either:', textError);
+          } catch {
+            console.error('❌ Could not get text response either');
           }
         }
         
@@ -480,16 +398,22 @@ export const useWishlist = (): UseWishlistReturn => {
         console.warn('⚠️ Unexpected response format:', data);
         setWishlist([]);
       }
-    } catch (error: any) {
-      console.error('❌ Failed to fetch wishlist:', error);
+    } catch (fetchError: unknown) {
+      console.error('❌ Failed to fetch wishlist:', fetchError);
       
       // More specific error handling
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError('Network error. Please check your connection.');
-      } else if (error.message.includes('JSON')) {
-        setError('Server response error. Please try again.');
+      const errorMessage = fetchError instanceof Error ? fetchError.message : 'Failed to load wishlist';
+      
+      if (fetchError instanceof Error) {
+        if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
+          setError('Network error. Please check your connection.');
+        } else if (fetchError.message.includes('JSON')) {
+          setError('Server response error. Please try again.');
+        } else {
+          setError(errorMessage);
+        }
       } else {
-        setError(error.message || 'Failed to load wishlist');
+        setError('Failed to load wishlist');
       }
       
       setWishlist([]);
@@ -497,6 +421,86 @@ export const useWishlist = (): UseWishlistReturn => {
       setLoading(false);
     }
   }, [isAuthenticated, user, getAuthHeaders]);
+
+  // Add package to wishlist
+  const addToWishlist = useCallback(async (packageId: string) => {
+    console.log('📦 Adding to wishlist - Package ID:', packageId);
+    console.log('🔐 User authenticated:', isAuthenticated);
+    console.log('👤 User data:', user);
+
+    if (!isAuthenticated || !user) {
+      throw new Error('Please login to add packages to your wishlist');
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const headers = getAuthHeaders();
+      console.log('📡 Request headers:', headers);
+
+      const requestBody = { packageId };
+      console.log('📤 Request body:', requestBody);
+
+      const response = await fetch('/api/users/wishlist', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(requestBody)
+      });
+
+      console.log('📥 Response status:', response.status);
+      console.log('📥 Response statusText:', response.statusText);
+
+      // Log response headers
+      console.log('📥 Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (response.status === 401) {
+        console.error('❌ 401 Unauthorized - Token may be invalid');
+        
+        // Let's check the response body for more details
+        try {
+          const errorData = await response.json();
+          console.error('❌ 401 Error details:', errorData);
+        } catch {
+          console.error('❌ Could not parse 401 error response');
+        }
+        
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        throw new Error('Session expired. Please login again.');
+      }
+
+      if (response.status === 409) {
+        const errorData = await response.json().catch(() => ({}));
+        console.log('⚠️ 409 Conflict:', errorData);
+        throw new Error(errorData.message || 'Package already in wishlist');
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ API Error:', errorData);
+        throw new Error(errorData.message || `Failed to add to wishlist: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Success response:', data);
+      
+      if (data.success && data.wishlistItem) {
+        setWishlist(prev => [...prev, data.wishlistItem]);
+        console.log('✅ Added to local wishlist state');
+      } else {
+        console.log('🔄 Refreshing entire wishlist as fallback');
+        await fetchWishlist();
+      }
+    } catch (addError: unknown) {
+      console.error('❌ Failed to add to wishlist:', addError);
+      const errorMessage = addError instanceof Error ? addError.message : 'Failed to add to wishlist';
+      setError(errorMessage);
+      throw addError;
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated, user, getAuthHeaders, fetchWishlist]);
 
   // Remove package from wishlist
   const removeFromWishlist = useCallback(async (packageId: string) => {
@@ -532,10 +536,11 @@ export const useWishlist = (): UseWishlistReturn => {
 
       // Remove from local state
       setWishlist(prev => prev.filter(item => item.packageId !== packageId));
-    } catch (error: any) {
-      console.error('Failed to remove from wishlist:', error);
-      setError(error.message || 'Failed to remove from wishlist');
-      throw error;
+    } catch (removeError: unknown) {
+      console.error('Failed to remove from wishlist:', removeError);
+      const errorMessage = removeError instanceof Error ? removeError.message : 'Failed to remove from wishlist';
+      setError(errorMessage);
+      throw removeError;
     } finally {
       setLoading(false);
     }
@@ -555,8 +560,8 @@ export const useWishlist = (): UseWishlistReturn => {
   // Fetch wishlist when user changes - with error boundary
   useEffect(() => {
     if (isAuthenticated && user) {
-      fetchWishlist().catch(error => {
-        console.error('Effect: Failed to fetch wishlist:', error);
+      fetchWishlist().catch(fetchError => {
+        console.error('Effect: Failed to fetch wishlist:', fetchError);
         // Error is already handled in fetchWishlist
       });
     } else {

@@ -270,7 +270,139 @@
 
 
 
+// // src/lib/utils/validation.ts
+// export const validateEmail = (email: string): boolean => {
+//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//   return emailRegex.test(email.toLowerCase());
+// };
+
+// export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
+//   const errors: string[] = [];
+  
+//   if (password.length < 8) {
+//     errors.push('Password must be at least 8 characters long');
+//   }
+  
+//   if (!/(?=.*[a-z])/.test(password)) {
+//     errors.push('Password must contain at least one lowercase letter');
+//   }
+  
+//   if (!/(?=.*[A-Z])/.test(password)) {
+//     errors.push('Password must contain at least one uppercase letter');
+//   }
+  
+//   if (!/(?=.*\d)/.test(password)) {
+//     errors.push('Password must contain at least one number');
+//   }
+  
+//   if (!/(?=.*[@$!%*?&])/.test(password)) {
+//     errors.push('Password must contain at least one special character (@$!%*?&)');
+//   }
+  
+//   return {
+//     isValid: errors.length === 0,
+//     errors
+//   };
+// };
+
+// export const validatePhone = (phone: string): boolean => {
+//   const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+//   return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
+// };
+
+// export const validateName = (name: string): boolean => {
+//   return name.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(name);
+// };
+
+// export const validateRequired = (value: string): boolean => {
+//   return value.trim().length > 0;
+// };
+
+// export const validateFileUpload = (file: File, allowedTypes: string[], maxSize: number): { isValid: boolean; error?: string } => {
+//   if (!allowedTypes.includes(file.type)) {
+//     return {
+//       isValid: false,
+//       error: `File type not allowed. Allowed types: ${allowedTypes.join(', ')}`
+//     };
+//   }
+  
+//   if (file.size > maxSize) {
+//     return {
+//       isValid: false,
+//       error: `File size too large. Maximum size: ${maxSize / 1024 / 1024}MB`
+//     };
+//   }
+  
+//   return { isValid: true };
+// };
+
+// export const sanitizeInput = (input: string): string => {
+//   return input.trim().replace(/[<>]/g, '');
+// };
+
+// export const validateOTP = (otp: string): boolean => {
+//   return /^\d{6}$/.test(otp);
+// };
+
+// export const validateBookingData = (data: any): { isValid: boolean; errors: string[] } => {
+//   const errors: string[] = [];
+  
+//   if (!data.packageId) {
+//     errors.push('Package ID is required');
+//   }
+  
+//   if (!data.travelers || data.travelers < 1) {
+//     errors.push('Number of travelers must be at least 1');
+//   }
+  
+//   if (!data.startDate) {
+//     errors.push('Start date is required');
+//   } else {
+//     const startDate = new Date(data.startDate);
+//     const today = new Date();
+//     today.setHours(0, 0, 0, 0);
+    
+//     if (startDate < today) {
+//       errors.push('Start date cannot be in the past');
+//     }
+//   }
+  
+//   if (!validateEmail(data.email)) {
+//     errors.push('Valid email is required');
+//   }
+  
+//   if (!validatePhone(data.phone)) {
+//     errors.push('Valid phone number is required');
+//   }
+  
+//   return {
+//     isValid: errors.length === 0,
+//     errors
+//   };
+// };
+
+
+
+
+
+
+
 // src/lib/utils/validation.ts
+import * as yup from 'yup';
+
+export const forgotPasswordSchema = yup.object().shape({
+  email: yup.string().email('Invalid email address').required('Email is required'),
+});
+
+interface BookingData {
+  packageId?: string;
+  travelers?: number;
+  startDate?: string | Date;
+  email?: string;
+  phone?: string;
+  [key: string]: unknown; // Allow additional properties
+}
+
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.toLowerCase());
@@ -344,7 +476,7 @@ export const validateOTP = (otp: string): boolean => {
   return /^\d{6}$/.test(otp);
 };
 
-export const validateBookingData = (data: any): { isValid: boolean; errors: string[] } => {
+export const validateBookingData = (data: BookingData): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
   if (!data.packageId) {
@@ -367,11 +499,11 @@ export const validateBookingData = (data: any): { isValid: boolean; errors: stri
     }
   }
   
-  if (!validateEmail(data.email)) {
+  if (!data.email || !validateEmail(data.email)) {
     errors.push('Valid email is required');
   }
   
-  if (!validatePhone(data.phone)) {
+  if (!data.phone || !validatePhone(data.phone)) {
     errors.push('Valid phone number is required');
   }
   

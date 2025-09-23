@@ -1,4 +1,6 @@
-// // src/components/admin/PackageForm.tsx
+
+
+// // src/components/admin/PackageForm.tsx - Updated with Wishlist functionality
 // import React, { useState } from 'react';
 // import {
 //   Save,
@@ -11,10 +13,15 @@
 //   IndianRupee,
 //   Star,
 //   Tag,
-//   Image as ImageIcon
+//   Image as ImageIcon,
+//   Heart,
+//   HeartOff
 // } from 'lucide-react';
+// import { useAuth } from '@/hooks/useAuth';
+// import { useWishlist } from '@/hooks/useWishlist';
 
 // interface PackageFormData {
+//   id?: string; // Add ID for existing packages
 //   title: string;
 //   description: string;
 //   shortDescription: string;
@@ -41,14 +48,25 @@
 //   onSubmit: (data: PackageFormData) => Promise<void>;
 //   onCancel: () => void;
 //   isEditing?: boolean;
+//   showWishlistButton?: boolean; // New prop to control wishlist button visibility
 // }
 
 // const PackageForm: React.FC<PackageFormProps> = ({
 //   initialData,
 //   onSubmit,
 //   onCancel,
-//   isEditing = false
+//   isEditing = false,
+//   showWishlistButton = true
 // }) => {
+//   const { user } = useAuth();
+//   const { 
+//     wishlist, 
+//     addToWishlist, 
+//     removeFromWishlist, 
+//     isInWishlist, 
+//     loading: wishlistLoading 
+//   } = useWishlist();
+
 //   const [formData, setFormData] = useState<PackageFormData>({
 //     title: '',
 //     description: '',
@@ -74,9 +92,13 @@
 
 //   const [isSubmitting, setIsSubmitting] = useState(false);
 //   const [currentStep, setCurrentStep] = useState(1);
+//   const [wishlistMessage, setWishlistMessage] = useState('');
 
 //   const categories = ['Adventure', 'Beach', 'Cultural', 'Family', 'Honeymoon', 'Luxury', 'Pilgrimage', 'Wildlife'];
 //   const difficulties = ['Easy', 'Moderate', 'Challenging', 'Extreme'];
+
+//   // Check if current package is in wishlist
+//   const isPackageInWishlist = formData.id ? isInWishlist(formData.id) : false;
 
 //   const handleChange = (field: keyof PackageFormData, value: any) => {
 //     setFormData(prev => ({ ...prev, [field]: value }));
@@ -98,6 +120,35 @@
 //     const array = formData[field] as string[];
 //     if (array.length > 1) {
 //       handleChange(field, array.filter((_, i) => i !== index));
+//     }
+//   };
+
+//   const handleWishlistToggle = async () => {
+//     if (!user) {
+//       setWishlistMessage('Please login to add packages to your wishlist');
+//       setTimeout(() => setWishlistMessage(''), 3000);
+//       return;
+//     }
+
+//     if (!formData.id) {
+//       setWishlistMessage('Package must be saved before adding to wishlist');
+//       setTimeout(() => setWishlistMessage(''), 3000);
+//       return;
+//     }
+
+//     try {
+//       if (isPackageInWishlist) {
+//         await removeFromWishlist(formData.id);
+//         setWishlistMessage('Removed from wishlist');
+//       } else {
+//         await addToWishlist(formData.id);
+//         setWishlistMessage('Added to wishlist');
+//       }
+//       setTimeout(() => setWishlistMessage(''), 3000);
+//     } catch (error) {
+//       console.error('Wishlist operation failed:', error);
+//       setWishlistMessage('Failed to update wishlist');
+//       setTimeout(() => setWishlistMessage(''), 3000);
 //     }
 //   };
 
@@ -153,6 +204,45 @@
 //       ))}
 //     </div>
 //   );
+
+//   const renderWishlistButton = () => {
+//     if (!showWishlistButton || (!isEditing && !formData.id)) return null;
+
+//     return (
+//       <div className="flex items-center space-x-4">
+//         <button
+//           type="button"
+//           onClick={handleWishlistToggle}
+//           disabled={wishlistLoading || !user}
+//           className={`flex items-center px-4 py-2 rounded-lg transition-all duration-200 ${
+//             isPackageInWishlist
+//               ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+//               : 'bg-white/10 text-gray-300 border border-white/20 hover:bg-white/20'
+//           } disabled:opacity-50 disabled:cursor-not-allowed`}
+//           title={isPackageInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+//         >
+//           {wishlistLoading ? (
+//             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+//           ) : isPackageInWishlist ? (
+//             <Heart className="h-4 w-4 mr-2 fill-current" />
+//           ) : (
+//             <HeartOff className="h-4 w-4 mr-2" />
+//           )}
+//           {isPackageInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+//         </button>
+        
+//         {wishlistMessage && (
+//           <div className={`px-3 py-1 rounded-lg text-sm ${
+//             wishlistMessage.includes('Failed') 
+//               ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+//               : 'bg-green-500/20 text-green-400 border border-green-500/30'
+//           }`}>
+//             {wishlistMessage}
+//           </div>
+//         )}
+//       </div>
+//     );
+//   };
 
 //   const renderStep1 = () => (
 //     <div className="space-y-6">
@@ -583,12 +673,17 @@
 //     <div className="max-w-4xl mx-auto">
 //       <div className="bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 p-8">
 //         <div className="mb-8">
-//           <h2 className="text-2xl font-bold text-white mb-2">
-//             {isEditing ? 'Edit Package' : 'Create New Package'}
-//           </h2>
-//           <p className="text-gray-300">
-//             {isEditing ? 'Update your package details' : 'Add a new travel package to your collection'}
-//           </p>
+//           <div className="flex items-center justify-between">
+//             <div>
+//               <h2 className="text-2xl font-bold text-white mb-2">
+//                 {isEditing ? 'Edit Package' : 'Create New Package'}
+//               </h2>
+//               <p className="text-gray-300">
+//                 {isEditing ? 'Update your package details' : 'Add a new travel package to your collection'}
+//               </p>
+//             </div>
+//             {renderWishlistButton()}
+//           </div>
 //         </div>
 
 //         {renderStepIndicator()}
@@ -668,9 +763,6 @@
 
 
 
-
-
-// src/components/admin/PackageForm.tsx - Updated with Wishlist functionality
 import React, { useState } from 'react';
 import {
   Save,
@@ -681,17 +773,16 @@ import {
   Calendar,
   Users,
   IndianRupee,
-  Star,
   Tag,
-  Image as ImageIcon,
   Heart,
   HeartOff
 } from 'lucide-react';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useWishlist } from '@/hooks/useWishlist';
 
 interface PackageFormData {
-  id?: string; // Add ID for existing packages
+  id?: string;
   title: string;
   description: string;
   shortDescription: string;
@@ -718,7 +809,7 @@ interface PackageFormProps {
   onSubmit: (data: PackageFormData) => Promise<void>;
   onCancel: () => void;
   isEditing?: boolean;
-  showWishlistButton?: boolean; // New prop to control wishlist button visibility
+  showWishlistButton?: boolean;
 }
 
 const PackageForm: React.FC<PackageFormProps> = ({
@@ -730,7 +821,6 @@ const PackageForm: React.FC<PackageFormProps> = ({
 }) => {
   const { user } = useAuth();
   const { 
-    wishlist, 
     addToWishlist, 
     removeFromWishlist, 
     isInWishlist, 
@@ -770,7 +860,7 @@ const PackageForm: React.FC<PackageFormProps> = ({
   // Check if current package is in wishlist
   const isPackageInWishlist = formData.id ? isInWishlist(formData.id) : false;
 
-  const handleChange = (field: keyof PackageFormData, value: any) => {
+  const handleChange = (field: keyof PackageFormData, value: string | number | string[] | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -1258,9 +1348,11 @@ const PackageForm: React.FC<PackageFormProps> = ({
         </div>
         {formData.thumbnail && (
           <div className="mt-2">
-            <img
+            <Image
               src={formData.thumbnail}
               alt="Thumbnail preview"
+              width={768}
+              height={192}
               className="w-full h-48 object-cover rounded-lg"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
@@ -1420,4 +1512,3 @@ const PackageForm: React.FC<PackageFormProps> = ({
 };
 
 export default PackageForm;
-

@@ -1,8 +1,217 @@
+// // src/pages/api/bookings/user.ts
+// import type { NextApiResponse } from 'next';
+// import connectDB from '@/lib/db/connection';
+// import Booking from '@/lib/db/models/Booking';
+// import { authenticate, AuthenticatedRequest } from '@/lib/auth/middleware';
+
+// export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+//   if (req.method !== 'GET') {
+//     return res.status(405).json({ success: false, message: 'Method not allowed' });
+//   }
+
+//   return authenticate(async (req: AuthenticatedRequest, res: NextApiResponse) => {
+//     try {
+//       await connectDB();
+//       console.log('📋 Fetching user bookings for user:', req.user.id);
+
+//       // Get query parameters for filtering and pagination
+//       const { page = 1, limit = 20, status, search } = req.query;
+//       const pageNum = parseInt(page as string);
+//       const limitNum = parseInt(limit as string);
+//       const skip = (pageNum - 1) * limitNum;
+
+//       // Build query
+//       const query: any = { userId: req.user.id };
+
+//       // Add status filter if provided
+//       if (status && status !== 'all') {
+//         query.status = status;
+//       }
+
+//       // Add search filter if provided
+//       if (search) {
+//         query.$or = [
+//           { bookingReference: { $regex: search, $options: 'i' } },
+//           { 'packageId.title': { $regex: search, $options: 'i' } },
+//           { 'packageId.destination': { $regex: search, $options: 'i' } }
+//         ];
+//       }
+
+//       // Fetch bookings with populated package data
+//       const bookings = await Booking.find(query)
+//         .populate({
+//           path: 'packageId',
+//           select: 'title destination images duration pricing isActive'
+//         })
+//         .sort({ createdAt: -1 }) // Most recent first
+//         .skip(skip)
+//         .limit(limitNum)
+//         .lean();
+
+//       // Get total count for pagination
+//       const totalBookings = await Booking.countDocuments(query);
+
+//       // Filter out bookings with deleted packages
+//       const validBookings = bookings.filter(booking => booking.packageId && booking.packageId.isActive !== false);
+
+//       // Calculate pagination info
+//       const totalPages = Math.ceil(totalBookings / limitNum);
+//       const hasNextPage = pageNum < totalPages;
+//       const hasPrevPage = pageNum > 1;
+
+//       console.log(`✅ Found ${validBookings.length} bookings for user`);
+
+//       res.status(200).json({
+//         success: true,
+//         bookings: validBookings,
+//         pagination: {
+//           currentPage: pageNum,
+//           totalPages,
+//           totalBookings,
+//           hasNextPage,
+//           hasPrevPage,
+//           limit: limitNum
+//         }
+//       });
+
+//     } catch (error: any) {
+//       console.error('❌ Error fetching user bookings:', error);
+//       res.status(500).json({
+//         success: false,
+//         message: 'Failed to fetch bookings',
+//         error: process.env.NODE_ENV === 'development' ? error.message : undefined
+//       });
+//     }
+//   })(req, res);
+// }
+
+
+
+
+
+
+
+// // src/pages/api/bookings/user.ts
+// import type { NextApiResponse } from 'next';
+// import connectDB from '@/lib/db/connection';
+// import Booking from '@/lib/db/models/Booking';
+// import { authenticate, AuthenticatedRequest } from '@/lib/auth/middleware';
+
+// interface BookingQuery {
+//   userId: string;
+//   status?: string;
+//   $or?: Array<{
+//     bookingReference?: { $regex: string; $options: string };
+//     'packageId.title'?: { $regex: string; $options: string };
+//     'packageId.destination'?: { $regex: string; $options: string };
+//   }>;
+// }
+
+// export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
+//   if (req.method !== 'GET') {
+//     return res.status(405).json({ success: false, message: 'Method not allowed' });
+//   }
+
+//   return authenticate(async (req: AuthenticatedRequest, res: NextApiResponse) => {
+//     try {
+//       await connectDB();
+//       console.log('📋 Fetching user bookings for user:', req.user.id);
+
+//       // Get query parameters for filtering and pagination
+//       const { page = 1, limit = 20, status, search } = req.query;
+//       const pageNum = parseInt(page as string);
+//       const limitNum = parseInt(limit as string);
+//       const skip = (pageNum - 1) * limitNum;
+
+//       // Build query
+//       const query: BookingQuery = { userId: req.user.id };
+
+//       // Add status filter if provided
+//       if (status && status !== 'all') {
+//         query.status = status as string;
+//       }
+
+//       // Add search filter if provided
+//       if (search) {
+//         query.$or = [
+//           { bookingReference: { $regex: search as string, $options: 'i' } },
+//           { 'packageId.title': { $regex: search as string, $options: 'i' } },
+//           { 'packageId.destination': { $regex: search as string, $options: 'i' } }
+//         ];
+//       }
+
+//       // Fetch bookings with populated package data
+//       const bookings = await Booking.find(query)
+//         .populate({
+//           path: 'packageId',
+//           select: 'title destination images duration pricing isActive'
+//         })
+//         .sort({ createdAt: -1 }) // Most recent first
+//         .skip(skip)
+//         .limit(limitNum)
+//         .lean();
+
+//       // Get total count for pagination
+//       const totalBookings = await Booking.countDocuments(query);
+
+//       // Filter out bookings with deleted packages
+//       const validBookings = bookings.filter(booking => booking.packageId && booking.packageId.isActive !== false);
+
+//       // Calculate pagination info
+//       const totalPages = Math.ceil(totalBookings / limitNum);
+//       const hasNextPage = pageNum < totalPages;
+//       const hasPrevPage = pageNum > 1;
+
+//       console.log(`✅ Found ${validBookings.length} bookings for user`);
+
+//       res.status(200).json({
+//         success: true,
+//         bookings: validBookings,
+//         pagination: {
+//           currentPage: pageNum,
+//           totalPages,
+//           totalBookings,
+//           hasNextPage,
+//           hasPrevPage,
+//           limit: limitNum
+//         }
+//       });
+
+//     } catch (error: unknown) {
+//       console.error('❌ Error fetching user bookings:', error);
+//       res.status(500).json({
+//         success: false,
+//         message: 'Failed to fetch bookings',
+//         error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+//       });
+//     }
+//   })(req, res);
+// }
+
+
+
+
+
+
+
+
+
+
 // src/pages/api/bookings/user.ts
 import type { NextApiResponse } from 'next';
 import connectDB from '@/lib/db/connection';
 import Booking from '@/lib/db/models/Booking';
 import { authenticate, AuthenticatedRequest } from '@/lib/auth/middleware';
+
+interface BookingQuery {
+  userId: string;
+  status?: string;
+  $or?: Array<{
+    bookingReference?: { $regex: string; $options: string };
+    'packageId.title'?: { $regex: string; $options: string };
+    'packageId.destination'?: { $regex: string; $options: string };
+  }>;
+}
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -11,8 +220,13 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
 
   return authenticate(async (req: AuthenticatedRequest, res: NextApiResponse) => {
     try {
+      // Check if req.user is defined
+      if (!req.user) {
+        return res.status(401).json({ success: false, message: 'Unauthorized: User not authenticated' });
+      }
+
       await connectDB();
-      console.log('📋 Fetching user bookings for user:', req.user.id);
+      console.log('📋 Fetching user bookings for user:', req.user._id); // Changed id to _id
 
       // Get query parameters for filtering and pagination
       const { page = 1, limit = 20, status, search } = req.query;
@@ -21,19 +235,19 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       const skip = (pageNum - 1) * limitNum;
 
       // Build query
-      const query: any = { userId: req.user.id };
+      const query: BookingQuery = { userId: req.user._id.toString() }; // Changed id to _id and convert to string if needed
 
       // Add status filter if provided
       if (status && status !== 'all') {
-        query.status = status;
+        query.status = status as string;
       }
 
       // Add search filter if provided
       if (search) {
         query.$or = [
-          { bookingReference: { $regex: search, $options: 'i' } },
-          { 'packageId.title': { $regex: search, $options: 'i' } },
-          { 'packageId.destination': { $regex: search, $options: 'i' } }
+          { bookingReference: { $regex: search as string, $options: 'i' } },
+          { 'packageId.title': { $regex: search as string, $options: 'i' } },
+          { 'packageId.destination': { $regex: search as string, $options: 'i' } },
         ];
       }
 
@@ -41,7 +255,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       const bookings = await Booking.find(query)
         .populate({
           path: 'packageId',
-          select: 'title destination images duration pricing isActive'
+          select: 'title destination images duration pricing isActive',
         })
         .sort({ createdAt: -1 }) // Most recent first
         .skip(skip)
@@ -52,7 +266,9 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       const totalBookings = await Booking.countDocuments(query);
 
       // Filter out bookings with deleted packages
-      const validBookings = bookings.filter(booking => booking.packageId && booking.packageId.isActive !== false);
+      const validBookings = bookings.filter(
+        (booking) => booking.packageId && booking.packageId.isActive !== false
+      );
 
       // Calculate pagination info
       const totalPages = Math.ceil(totalBookings / limitNum);
@@ -70,16 +286,15 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           totalBookings,
           hasNextPage,
           hasPrevPage,
-          limit: limitNum
-        }
+          limit: limitNum,
+        },
       });
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error fetching user bookings:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to fetch bookings',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
       });
     }
   })(req, res);
