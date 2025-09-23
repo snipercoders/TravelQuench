@@ -872,7 +872,7 @@ import Footer from '@/components/layout/Footer';
 import Layout from '@/components/layout/Layout';
 import BookButton from '@/components/common/BookButton';
 import {
-  Search,
+  
   MapPin,
   Calendar,
   Users,
@@ -1041,7 +1041,24 @@ const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: b
               </Badge>
             )}
           </div>
-          <div className="space-y-2">
+
+<div className="space-y-2">
+  <Link href={`/packages/${pkg._id}`}>
+    <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+      View Details
+    </Button>
+  </Link>
+  <BookButton
+    packageId={pkg._id}
+    className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm"
+    size="sm"
+  >
+    Book Now
+  </BookButton>
+</div>
+
+
+          {/* <div className="space-y-2">
             <Link href={`/packages/${pkg._id}`}>
               <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
                 View Details
@@ -1055,7 +1072,7 @@ const PackageCard = ({ pkg, isListView = false }: { pkg: Package; isListView?: b
             >
               Book Now
             </BookButton>
-          </div>
+          </div> */}
         </div>
       </div>
     </Card>
@@ -1167,7 +1184,24 @@ const InternationalPackagesPage: React.FC = () => {
                 <SlidersHorizontal className="h-3 sm:h-4 w-3 sm:w-4 mr-2" />
                 {showFilters ? 'Hide Filters' : 'Show Filters'}
               </Button>
-              <div className="flex gap-2">
+<div className="flex gap-2">
+  <Button
+    variant={viewMode === 'grid' ? 'primary' : 'outline'}
+    onClick={() => setViewMode('grid')}
+    className="p-2 sm:p-2.5"
+  >
+    <Grid3X3 className="h-3 sm:h-4 w-3 sm:w-4" />
+  </Button>
+  <Button
+    variant={viewMode === 'list' ? 'primary' : 'outline'}
+    onClick={() => setViewMode('list')}
+    className="p-2 sm:p-2.5"
+  >
+    <List className="h-3 sm:h-4 w-3 sm:w-4" />
+  </Button>
+</div>
+
+              {/* <div className="flex gap-2">
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   onClick={() => setViewMode('grid')}
@@ -1182,28 +1216,32 @@ const InternationalPackagesPage: React.FC = () => {
                 >
                   <List className="h-3 sm:h-4 w-3 sm:w-4" />
                 </Button>
-              </div>
+              </div> */}
             </div>
-            <div className="w-full sm:w-64">
-              <Input
-                placeholder="Search international destinations..."
-                value={filters.destination}
-                onChange={(e) => handleFilterChange('destination', e.target.value)}
-                icon={<Search className="h-3 sm:h-4 w-3 sm:w-4 text-gray-400" />}
-                className="text-xs sm:text-sm"
-              />
-            </div>
+    
+    <div className="w-full sm:w-64">
+  <Input
+    placeholder="Search international destinations..."
+    value={filters.destination}
+    onChange={(e) => handleFilterChange('destination', e.target.value)}
+    className="text-xs sm:text-sm"
+  />
+</div>
+
+
           </div>
           {showFilters && (
             <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white rounded-lg shadow-md">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                
                 <Select
-                  value={filters.category}
-                  onChange={(value) => handleFilterChange('category', value)}
-                  options={[{ value: 'all', label: 'All Categories' }, ...categories.map((cat) => ({ value: cat, label: cat }))]}
-                  placeholder="Select Category"
-                  className="text-xs sm:text-sm"
-                />
+  value={filters.category}
+  onChange={(e) => handleFilterChange('category', e.target.value)}
+  options={[{ value: 'all', label: 'All Categories' }, ...categories.map((cat) => ({ value: cat, label: cat }))]}
+  placeholder="Select Category"
+  className="text-xs sm:text-sm"
+/>
+
                 <Input
                   type="number"
                   placeholder="Min Price"
@@ -1219,17 +1257,12 @@ const InternationalPackagesPage: React.FC = () => {
                   className="text-xs sm:text-sm"
                 />
                 <Select
-                  value={filters.sort}
-                  onChange={(value) => handleFilterChange('sort', value)}
-                  options={[
-                    { value: 'createdAt', label: 'Newest First' },
-                    { value: 'priceAsc', label: 'Price: Low to High' },
-                    { value: 'priceDesc', label: 'Price: High to Low' },
-                    { value: 'rating', label: 'Top Rated' }
-                  ]}
-                  placeholder="Sort By"
-                  className="text-xs sm:text-sm"
-                />
+  value={filters.category}
+  onChange={(e) => handleFilterChange('category', e.target.value)}
+  options={[{ value: 'all', label: 'All Categories' }, ...categories.map((cat) => ({ value: cat, label: cat }))]}
+  placeholder="Select Category"
+  className="text-xs sm:text-sm"
+/>
               </div>
             </div>
           )}

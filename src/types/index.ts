@@ -251,6 +251,32 @@ export interface ItineraryDay {
   accommodation?: string;
 }
 
+// // Booking types
+// export interface Booking {
+//   id: string;
+//   userId: string;
+//   packageId: string;
+//   package: Package;
+//   user: User;
+//   travelers: number;
+//   startDate: string;
+//   endDate: string;
+//   totalAmount: number;
+//   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+//   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+//   specialRequests?: string;
+//   contactDetails: {
+//     name: string;
+//     email: string;
+//     phone: string;
+//   };
+//   travelers: TravelerInfo[];
+//   createdAt: string;
+//   updatedAt: string;
+// }
+
+
+
 // Booking types
 export interface Booking {
   id: string;
@@ -258,7 +284,7 @@ export interface Booking {
   packageId: string;
   package: Package;
   user: User;
-  travelers: number;
+  travelerCount: number;  // RENAMED from 'travelers' to 'travelerCount'
   startDate: string;
   endDate: string;
   totalAmount: number;
@@ -270,10 +296,11 @@ export interface Booking {
     email: string;
     phone: string;
   };
-  travelers: TravelerInfo[];
+  travelers: TravelerInfo[];  // Keep this one for the array of traveler information
   createdAt: string;
   updatedAt: string;
 }
+
 
 export interface TravelerInfo {
   name: string;
